@@ -4,33 +4,49 @@
 
 using namespace std;
 
-bool operator<(Pair a, Pair b){
-  return a.lcm_degree<b.lcm_degree;
-}
-
 int Compare_ref_to_Pair(Pair* a,  Pair* b){
-  if (a->lcm_degree < b->lcm_degree)
-    return 1;
-  else
-    return 0;
+  if (a->degree!=b->degree)
+    if (a->degree<b->degree)
+      return 1;
+    else
+      return 0;
+  else if(a->lcm!=b->lcm)
+    if (a->lcm>b->lcm)
+      return 1;
+    else
+      return 0;
+  else if (a->i<b->i)
+         return 1;
+       else
+         return 0;
 }
 
-IMyPoly64* S(IMyPoly64& f,IMyPoly64& g){
-  IMyMonom64 *w(f.monomInterface()->create());
-  w->gcd(f.lm(),g.lm());
+IMyPoly64* IGBasis64::S(int i, int j){
+  if (i<Dim){
+    IMyPoly64 *r1 = pInterface_local->copy(*(*this)[j-Dim]);
+    r1->mult(i);
+    return r1;
+  }
+  else{
+    IMyMonom64 *w(mInterface_local->create());
+    IMyPoly64 *f,*g;
+    f = (*this)[i-Dim];
+    g = (*this)[j-Dim];
+    w->gcd(f->lm(),g->lm());
 
-  IMyMonom64 *q1(f.monomInterface()->create()), *q2(f.monomInterface()->create());
-  q1->divide(f.lm(),*w);
-  q2->divide(g.lm(),*w);
-  delete w;
+    IMyMonom64 *q1(mInterface_local->create()), *q2(mInterface_local->create());
+    q1->divide(f->lm(),*w);
+    q2->divide(g->lm(),*w);
+    delete w;
 
-  IMyPoly64 *r1 = f.polyInterface()->copy(f),
-            *r2 = g.polyInterface()->copy(g);
-  r1->mult(*q2); delete q2;
-  r2->mult(*q1); delete q1;
-  r1->add(*r2); delete r2;
+    IMyPoly64 *r1 = pInterface_local->copy(*f),
+              *r2 = pInterface_local->copy(*g);
+    r1->mult(*q2); delete q2;
+    r2->mult(*q1); delete q1;
+    r1->add(*r2); delete r2;
 
-  return r1;
+    return r1;
+  }
 }
 
 IGBasis64::IGBasis64():
@@ -155,37 +171,53 @@ void IGBasis64::ReduceSet(int i) {
   basis = R;
 }
 
-bool IGBasis64::criterion1(IMyPoly64 &pi, IMyPoly64 &pj, unsigned long &lcm_degree, int i){
-  if ( !pi.lm().gcd(pj.lm()) ){
-    return false;
-  }
+bool IGBasis64::criterion1(int i, int j, unsigned long &lcm, int &degree){
+  IMyPoly64 *f,*g;
+  if (i<Dim)
+    if (j<Dim)
+      return false;
+    else{
+      g = (*this)[j-Dim];
+      if (!g->lm().deg(i))
+        return false;
+      lcm = g->lm().rank();
+      degree = g->lm().degree() + 1;
+      return true;
+    }
   else{
-    IMyMonom64 *lcm_monom(pi.monomInterface()->create());
-    lcm_monom->lcm(pi.lm(),pj.lm());
-    lcm_degree=lcm_monom->rank();
-    delete lcm_monom;
-    return true;
+    f = (*this)[i-Dim];
+    g = (*this)[j-Dim];
+
+    if ( !f->lm().gcd(g->lm()) ){
+      return false;
+    }
+    else{
+      IMyMonom64 *lcm_monom(mInterface_local->create());
+      lcm_monom->lcm(f->lm(),g->lm());
+      lcm = lcm_monom->rank();
+      degree = lcm_monom->degree();
+      delete lcm_monom;
+      return true;
+    }
   }
 }
 
-bool IGBasis64::criterion2(int i, int j, IMyPoly64& ipoly, IMyPoly64& jpoly){
+bool IGBasis64::criterion2(int i, int j){
   vector<bool> *ilist(&all_pairs[i]), *jlist=(&all_pairs[j]);
   vector<bool>::const_iterator iit((*ilist).end()), jit((*jlist).end());
   int k,len=length();
   IMyPoly64 *tmp;
-  IMyMonom64 *lcm_monom(ipoly.monomInterface()->create());
-  lcm_monom->lcm(ipoly.lm(),jpoly.lm());
+  IMyMonom64 *lcm_monom(mInterface_local->copy((*this)[j-Dim]->lm()));
+  if (i>=Dim)
+    lcm_monom->mult((*this)[i-Dim]->lm());
 
-  for (k=len-1; k>=0; k--){
+  for (k=len+Dim-1; k>=Dim; k--){
     iit--;
     jit--;
     if (!(*iit) && !(*jit) && k!=i && k!=j){
-      tmp = (*this)[k];
-      if (lcm_monom->divisibility(tmp->lm()))//{
-        //delete lcm_monom;
-        //cout<<"Citerion 2 "<<k<<endl<<endl;
+      tmp = (*this)[k-Dim];
+      if (lcm_monom->divisibility(tmp->lm()))
 	return false;
-      //}
     }
   }
   return true;
@@ -205,38 +237,28 @@ void ShowPairs(vector<Pair*>& plist){
 
 void SelectPair(vector<Pair*>& plist, int& i, int& j){
   p_iterator = plist.begin();
-  //p_end = plist.end();
-
-  //unsigned min = (*p_iterator)->lcm_degree;
-  //while ((*p_iterator)->lcm_degree==min && p_iterator!=p_end)
-  //  p_iterator++;
-  //p_iterator--;
-
   i = (*p_iterator)->i;
   j = (*p_iterator)->j;
-  //delete *p_iterator;
   plist.erase(p_iterator);
 
   return;
 }
 
 void IGBasis64::push_poly(IMyPoly64* p,int flag){
-  int inum, jnum, dim = mInterface_local->dimIndepend(), k = length();
-  unsigned long lcm_deg;
+  int inum, jnum, k = length() + Dim, degree;
+  unsigned long lcm;
   vector<IMyPoly64*>::iterator basisIt(basis.begin());
   vector<Pair*>::iterator mid, add_end, add_begin;
-  IMyPoly64 *p1,*p2,*spoly;
 
   basisIt=basis.insert(basisIt, p);
-if (flag){
+
   vector<bool> add_to_all_pairs;
   vector<Pair*> add_to_pairs;
   all_pairs.push_back(add_to_all_pairs);
-  p2 = (*this)[k];
-  for (inum=0;inum<k;inum++){
-    p1 = (*this)[inum];
-    if (criterion1(*p1,*p2,lcm_deg, inum)){
-      Pair *tmpPair = new Pair(inum,k,lcm_deg);
+
+  for (inum=0;inum<k;inum++)
+    if (criterion1(inum,k,lcm,degree)){
+      Pair *tmpPair = new Pair(inum,k,lcm,degree);
       add_to_pairs.push_back(tmpPair);
       all_pairs[inum].push_back(true);
       all_pairs[k].push_back(true);
@@ -245,7 +267,7 @@ if (flag){
       all_pairs[inum].push_back(false);
       all_pairs[k].push_back(false);
     }
-  }
+
   all_pairs[k].push_back(false);
 
   if (!add_to_pairs.empty()){
@@ -259,25 +281,12 @@ if (flag){
     inplace_merge(ref_to_pairs.begin(), mid, ref_to_pairs.end(), Compare_ref_to_Pair);
   }
 }
-  for (inum=0;inum<dim;inum++){
-    if (p->lm().deg(inum)){
-      spoly = pInterface_local->copy(*p);
-      spoly->mult(inum);
-      p1 = Reduce(*spoly,basis);
-      if (!p1->isZero())
-        push_poly(p1,flag);
-    }
-  }
-}
 
 void IGBasis64::CalculateGB(){
-  int k = length(), inum, jnum;
-  unsigned long lcm_deg;
 
-  IMyPoly64 *h = pInterface_local->create();
-  IMyPoly64 *p1,*p2,*spoly;
-
-  bool criterions;
+  int k = length() + Dim, inum, jnum, degree;
+  unsigned long lcm;
+  IMyPoly64 *h, *spoly;
 
   for (inum=0; inum<k; inum++){
     vector<bool> k1;
@@ -287,17 +296,13 @@ void IGBasis64::CalculateGB(){
   }
 
   for (inum=0; inum<k; inum++)
-  for (jnum=inum+1; jnum<k; jnum++){
-      p1 = (*this)[inum];
-      p2 = (*this)[jnum];
-
-      if (criterion1(*p1,*p2,lcm_deg, inum)){
-	Pair *tmpPair = new Pair(inum, jnum, lcm_deg);
+  for (jnum=inum+1; jnum<k; jnum++)
+      if (criterion1(inum,jnum,lcm,degree)){
+	Pair *tmpPair = new Pair(inum, jnum, lcm, degree);
 	ref_to_pairs.push_back(tmpPair);
 	all_pairs[inum][jnum]=true;
 	all_pairs[jnum][inum]=true;
       }
-    }
 
   sort(ref_to_pairs.begin(),ref_to_pairs.end(),Compare_ref_to_Pair);
 
@@ -307,13 +312,8 @@ void IGBasis64::CalculateGB(){
     all_pairs[inum][jnum]=false;
     all_pairs[jnum][inum]=false;
 
-    p1 = (*this)[inum];
-    p2 = (*this)[jnum];
-
-    criterions = criterion2(inum,jnum,*p1,*p2);
-
-    if (criterions){
-      spoly = S(*p1,*p2);
+    if (criterion2(inum,jnum)){
+      spoly = S(inum,jnum);
       h = Reduce(*spoly,basis);
       delete spoly;
 
@@ -323,7 +323,6 @@ void IGBasis64::CalculateGB(){
         delete h;
     }
   }
-
 }
 
 IGBasis64::IGBasis64(vector<IMyPoly64*> set):
@@ -339,17 +338,16 @@ IGBasis64::IGBasis64(vector<IMyPoly64*> set):
   IMyPoly64 *tmp;
 
   while (i1!=set.end()){
-    //i2=basis.insert(i2, pInterface_local->copy(**i1));
+    i2=basis.insert(i2, pInterface_local->copy(**i1));
 
-    //for (i = 0; i < dim; i++){
-    //  i2=basis.insert(i2, pInterface_local->copy(**i1));
-    //  (**i2).mult(i);
-    //}
-    push_poly(pInterface_local->copy(**i1),0);
+    for (i = 0; i < Dim; i++){
+      i2=basis.insert(i2, pInterface_local->copy(**i1));
+      (**i2).mult(i);
+    }
     ++i1;
   }
 
-  ReduceSet(1);
+  ReduceSet(0);
   CalculateGB();
   ReduceSet(0);
 }
@@ -372,4 +370,3 @@ std::ostream& operator<<(std::ostream& out, IGBasis64& GBasis) {
 
   return out;
 }
-

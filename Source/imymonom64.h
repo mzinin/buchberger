@@ -48,7 +48,7 @@ public:
   unsigned deg(int var) const;
   unsigned operator[](int var) const { return deg(var); }
   unsigned degree() const;
-  unsigned rank() const;
+  unsigned long rank() const;
 
   void set(const IMyMonom64& a);
   void operator=(const IMyMonom64& a) { set(a); }
@@ -197,10 +197,12 @@ inline bool operator==(const IMyMonom64 &a, const IMyMonom64 &b){
   return a.exp==b.exp;
 }
 
-inline unsigned IMyMonom64::rank() const {
-    unsigned r = total_degree;
-    unsigned long *exp_int = (unsigned long*)&exp;
-    r = r<<mDimIndepend;
-    r-=*exp_int;
+inline unsigned long IMyMonom64::rank() const {
+    //unsigned r = total_degree;
+    //unsigned long *exp_int = (unsigned long*)&exp;
+    //r = r<<mDimIndepend;
+    //r-=*exp_int;
+    //return r;
+    unsigned long r = *(unsigned long*)&exp;
     return r;
 }
