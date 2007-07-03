@@ -113,8 +113,12 @@ public:
       //IASSERT(mIt);
       IMyMonom64 *tmp = *mIt;
       *mIt = (*mIt)->Next;
-      //tmp->Next = NULL;
       delete tmp;
+    }
+    void move_to(Iterator another) {
+      *another.mIt = *mIt;
+      *mIt = (*mIt)->Next;
+      (*another.mIt)->Next = NULL;
     }
     void clear() {
       while (*mIt)

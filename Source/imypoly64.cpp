@@ -214,98 +214,44 @@ void IMyPoly64::add(IMyPoly64& a) {
   //IASSERTVALID(*this);
 }
 
-void IMyPoly64::mult(int var) {
-  if (isZero()) return; //если многочлен=0, сразу же выходим
-  Iterator i(mHead), itmp;
-  i->prolong(var); //страший моном просто умножается на переменную
-  i++;
-  bool moved;
+void IMyPoly64::mult(int var){
+  if (isZero()) return;
+  IMyPoly64 *tmp_no_x;
+  tmp_no_x = mRealization->create();
+  Iterator i(mHead), i_no_x(tmp_no_x->mHead);
 
-  while (i)
+  while (i){
     if (!i->deg(var)){
-      i->prolong(var);
-      moved = false;
-      itmp = begin(); //начало проверки всех предыдущих мономов
-      while (itmp!=i && !moved) {
-        moved = false;
-	switch(itmp->compare(*i)){
-        case 1:  //если предшествующий моном старше рассматриваемого
-          itmp++;
-	  break;
-        case -1: //если предшествующий моном младше рассматриваемого
-          itmp.insert(i.get());
-	  moved = true;
-	  break;
-        case 0:  //если оказались равны, уничтожаются
-          i.del();
-          len-=2;
-	  if (itmp->Next!=*i.mIt)
-            itmp.del();
-          else{
-            itmp.del();
-            i = itmp;
-          }
-	  moved = true;
-	  break;
-        }
-      }
-      if (!moved) i++;
+      i.move_to(i_no_x);
+      i_no_x++;
+      len--;
     }
     else
       i++;
+  }
 
+  i_no_x = tmp_no_x->begin();
+  while (i_no_x){
+    i_no_x->prolong(var);
+    i_no_x++;
+  }
+
+  add(*tmp_no_x);
+  delete tmp_no_x;
 }
 
 void IMyPoly64::mult(int var, unsigned deg) {
   if (var>0) mult(var);
   //IASSERTVALID(*this);
 }
-/*
+
 void IMyPoly64::mult(const IMyMonom64& m) {
-  if (isZero()) return; //если многочлен=0, сразу же выходим
-  Iterator i(mHead), itmp;
-  i->mult(m); //страший моном просто умножается на моном
-  i++;
-  int prev_deg;
-  bool moved;
-
-  while (i) {
-    prev_deg = i->degree();
-    i->mult(m);
-    if (i->degree()!=prev_deg){ //если моном изменился
-
-      moved = false;
-      itmp = begin(); //начало проверки всех предыдущих мономов
-      while (itmp!=i && !moved) {
-        moved = false;
-	switch(itmp->compare(*i)) {
-        case 1:  //если предшествующий моном старше рассматриваемого
-          itmp++;
-	  break;
-        case -1: //если предшествующий моном младше рассматриваемого
-          itmp.insert(i.get());
-	  moved = true;
-	  break;
-        case 0:  //если оказались равны, уничтожаются
-          i.del();
-	  if (itmp->Next!=*i.mIt)
-            itmp.del();
-          else{
-            itmp.del();
-            i = itmp;
-          }
-	  moved = true;
-	  break;
-        }
-      }
-      if (!moved) i++;
-    }
-    else
-      i++;
-
-  }
+  if (isZero()) return;
+  for (int i=0; i<m.dimIndepend(); i++)
+    if (m.deg(i))
+      mult(i);
 }
-*/
+/*
 void IMyPoly64::mult(const IMyMonom64& m) {
   if (isZero()) return; //если многочлен=0, сразу же выходим
   Iterator i(mHead), itmp, i_minus;
@@ -367,13 +313,12 @@ void IMyPoly64::mult(const IMyMonom64& m) {
       }
       if (!moved) i++;
       break;
-
     }
     else
      i++;
   }
 }
-
+*/
 void IMyPoly64::mult(const IMyPoly64 &a) {
   //IASSERT(polyInterface() == a.polyInterface());
   IMyPoly64 *p = new IMyPoly64(polyInterface());

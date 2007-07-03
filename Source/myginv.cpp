@@ -15,11 +15,11 @@ int main(int argc, char *argv[])
   else{
     fin.open(argv[1]);
     if (!fin){
-      cout<<"Нет такого файла"<<endl;
+      cout<<"Нет такого файла."<<endl;
       return 1;
     }
   }
-
+  
   IVariables vars;
   //-----подсчет переменных
   int i=0;
