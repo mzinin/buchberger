@@ -26,15 +26,13 @@ IMyMonom64* IMyMonomInterface64::copy(const IMyMonom64 &a) {
 }
 
 IMyMonom64::IMyMonom64(IMyMonomInterface64* r):
-  mRealization(r),
-  mDimIndepend(r->dimIndepend()),mWord((mDimIndepend-1)/32),exp(),Next(NULL){
+  mRealization(r),mDimIndepend(r->dimIndepend()),exp(),Next(NULL){
       IASSERT(mRealization);
       total_degree = 0;
   }
 
 IMyMonom64::IMyMonom64(const IMyMonom64& a):
-  mRealization(a.mRealization),
-  mDimIndepend(a.mDimIndepend),mWord((mDimIndepend-1)/32),exp(),Next(NULL){
+  mRealization(a.mRealization),mDimIndepend(a.mDimIndepend),exp(),Next(NULL){
     total_degree = a.total_degree;
     exp = a.exp;
   }
@@ -159,3 +157,5 @@ std::ostream& operator<<(std::ostream& out, const IMyMonom64& a) {
   }
   return out;
 }
+
+IAllocator IMyMonom64::sAllocator(sizeof(IMyMonom64));

@@ -5,12 +5,13 @@ BINARY = .
 
 all: myginv
 
-myginv: myginv.o igroebner64.o imypoly64.o imymonom64.o ivariables.o itimer.o
+myginv: myginv.o igroebner64.o imypoly64.o imymonom64.o iallocator.o ivariables.o itimer.o
 	$(CXX) \
             $(BINARY)/myginv.o \
             $(BINARY)/igroebner64.o \
             $(BINARY)/imypoly64.o \
             $(BINARY)/imymonom64.o \
+            $(BINARY)/iallocator.o \
             $(BINARY)/ivariables.o \
             $(BINARY)/itimer.o \
             -o $(BINARY)/myginv
@@ -27,6 +28,9 @@ imypoly64.o: $(SOURCE)/imypoly64.h $(SOURCE)/imymonom64.h
 
 imymonom64.o: $(SOURCE)/imymonom64.h $(SOURCE)/ivariables.h
 	$(CXX) $(CXXFLAGS) $(SOURCE)/imymonom64.cpp -o $(BINARY)/imymonom64.o
+
+iallocator.o: $(SOURCE)/iallocator.h $(SOURCE)/iutil.h
+	$(CXX) $(CXXFLAGS) $(SOURCE)/iallocator.cpp -o $(BINARY)/iallocator.o
 
 ivariables.o: $(SOURCE)/ivariables.h $(SOURCE)/iutil.h
 	$(CXX) $(CXXFLAGS) $(SOURCE)/ivariables.cpp -o $(BINARY)/ivariables.o

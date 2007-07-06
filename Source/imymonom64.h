@@ -1,6 +1,7 @@
 #include <iostream>
 #include <bitset>
 #include "ivariables.h"
+#include "iallocator.h"
 
 using namespace std;
 
@@ -30,9 +31,9 @@ class IMyMonom64 {
 protected:
   IMyMonom64(IMyMonomInterface64* r);
   IMyMonomInterface64* const mRealization;
-  unsigned total_degree;
-  int mDimIndepend,mWord;
+  short int total_degree, mDimIndepend;
   bitset<64> exp;
+  static IAllocator sAllocator;
 
 public:
   IMyMonom64 *Next;
@@ -83,6 +84,8 @@ public:
   friend bool operator!=(const IMyMonom64 &a, const IMyMonom64 &b) { return !(a==b); };
 
   //void assertValid(const char* fileName, int fileLine) const;
+  void* operator new(size_t) { return sAllocator.allocate(); }
+  void operator delete(void *ptr) { sAllocator.deallocate(ptr); }
 };
 
 inline unsigned IMyMonom64::deg(int var) const {

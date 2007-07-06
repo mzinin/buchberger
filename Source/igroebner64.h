@@ -3,16 +3,18 @@
 #include "imypoly64.h"
 
 struct Pair {
-  int i;
-  int j;
+  short int i, j, degree;
   unsigned long lcm;
-  int degree;
+  static IAllocator sAllocator;
 
   Pair() {}
   Pair(int i_new, int j_new, unsigned lcm_new, int deg_new){
     i = i_new; j = j_new; lcm = lcm_new; degree = deg_new;
   }
   ~Pair() {}
+
+  void* operator new(size_t) { return sAllocator.allocate(); }
+  void operator delete(void *ptr) { sAllocator.deallocate(ptr); }
 };
 
 IMyPoly64* findR(IMyPoly64& p, vector<IMyPoly64*> &Q);
@@ -30,7 +32,7 @@ protected:
 
   bool criterion1(int i, int j, unsigned long &lcm, int &degree);
   bool criterion2(int i, int j);
-  void push_poly(IMyPoly64* p,int flag);
+  void push_poly(IMyPoly64* p, int flag);
   void CalculateGB();
 
 public:
@@ -48,3 +50,14 @@ public:
 
   friend std::ostream& operator<<(std::ostream& out, IGBasis64& GBasis);
 };
+
+inline IMyPoly64* IGBasis64::operator[](int num){
+  //IASSERT(0<=num && num<length());
+  vector<IMyPoly64*>::const_iterator it(basis.begin());
+  it+=length()-1-num;
+  return *it;
+}
+
+inline int IGBasis64::length(){
+  return basis.size();
+}

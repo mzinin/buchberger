@@ -244,7 +244,7 @@ void SelectPair(vector<Pair*>& plist, int& i, int& j){
   return;
 }
 
-void IGBasis64::push_poly(IMyPoly64* p,int flag){
+void IGBasis64::push_poly(IMyPoly64* p, int flag){
   int inum, jnum, k = length() + Dim, degree;
   unsigned long lcm;
   vector<IMyPoly64*>::iterator basisIt(basis.begin());
@@ -328,39 +328,33 @@ void IGBasis64::CalculateGB(){
 IGBasis64::IGBasis64(vector<IMyPoly64*> set):
   basis(), vars(), mInterface_local(NULL), pInterface_local(NULL) {
 
+  vector<IMyPoly64*> drv;
+
   vector<IMyPoly64*>::const_iterator i1(set.begin());
-  vector<IMyPoly64*>::iterator i2(basis.begin());
+  vector<IMyPoly64*>::iterator i2(basis.begin()), id(drv.begin());
 
   mInterface_local = (**i1).monomInterface();
   pInterface_local = (**i1).polyInterface();
   Dim = mInterface_local->dimIndepend();
-  int i;
+  int i, j;
   IMyPoly64 *tmp;
 
   while (i1!=set.end()){
     i2=basis.insert(i2, pInterface_local->copy(**i1));
+    //i2=basis.insert(i2, (**i1).deriv1()); if (!(*i2)) i2 = basis.erase(i2);
+    //i2=basis.insert(i2, (**i1).deriv2()); if (!(*i2)) i2 = basis.erase(i2);
 
     for (i = 0; i < Dim; i++){
       i2=basis.insert(i2, pInterface_local->copy(**i1));
       (**i2).mult(i);
     }
+
     ++i1;
   }
 
   ReduceSet(0);
   CalculateGB();
   ReduceSet(0);
-}
-
-IMyPoly64* IGBasis64::operator[](int num){
-  //IASSERT(0<=num && num<length());
-  vector<IMyPoly64*>::const_iterator it(basis.begin());
-  it+=length()-1-num;
-  return *it;
-}
-
-int IGBasis64::length(){
-  return basis.size();
 }
 
 std::ostream& operator<<(std::ostream& out, IGBasis64& GBasis) {
@@ -370,3 +364,5 @@ std::ostream& operator<<(std::ostream& out, IGBasis64& GBasis) {
 
   return out;
 }
+
+IAllocator Pair::sAllocator(sizeof(Pair));

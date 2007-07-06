@@ -169,6 +169,9 @@ public:
 
   void RawCopy(IMyPoly64& a);
   void assertValid(const char* fileName, int fileLine) const;
+
+  IMyPoly64* deriv1();
+  IMyPoly64* deriv2();
 };
 
 inline const IMyMonom64& IMyPoly64::lm() const {

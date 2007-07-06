@@ -557,3 +557,33 @@ void IMyPoly64::assertValid(const char* fileName, int fileLine) const {
     }
   }
 }
+
+IMyPoly64* IMyPoly64::deriv1(){
+  Iterator i(mHead);
+  i++;
+  if (!lm().divisibility(*i))
+    return NULL;
+  else {
+    IMyPoly64 *deriv = mRealization->copy(*this);
+    IMyMonom64 *m(monomInterface()->create());
+    m->divide(lm(), *i);
+    deriv->mult(*m);
+    delete m;
+    return deriv;
+  }
+}
+
+IMyPoly64* IMyPoly64::deriv2(){
+  Iterator i(mHead);
+  i++; i++;
+  if (!lm().divisibility(*i))
+    return NULL;
+  else {
+    IMyPoly64 *deriv = mRealization->copy(*this);
+    IMyMonom64 *m(monomInterface()->create());
+    m->divide(lm(), *i);
+    deriv->mult(*m);
+    delete m;
+    return deriv;
+  }
+}
