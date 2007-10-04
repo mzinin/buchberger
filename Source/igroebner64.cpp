@@ -7,40 +7,40 @@ using namespace std;
 int Compare_ref_to_Pair(Pair* a,  Pair* b){
   if (a->degree!=b->degree)
     if (a->degree<b->degree)
-      return 1;
-    else
       return 0;
+    else
+      return 1;
   else if(a->lcm!=b->lcm)
     if (a->lcm>b->lcm)
-      return 1;
-    else
       return 0;
+    else
+      return 1;
   else if (a->i<b->i)
-         return 1;
-       else
          return 0;
+       else
+         return 1;
 }
 
-IMyPoly64* IGBasis64::S(int i, int j){
+Poly64* IGBasis64::S(int i, int j){
   if (i<Dim){
-    IMyPoly64 *r1 = pInterface_local->copy(*(*this)[j-Dim]);
+    Poly64 *r1 = new Poly64(*(*this)[j-Dim]);
     r1->mult(i);
     return r1;
   }
   else{
-    IMyMonom64 *w(mInterface_local->create());
-    IMyPoly64 *f,*g;
+    Monom64 *w = new Monom64();
+    Poly64 *f,*g;
     f = (*this)[i-Dim];
     g = (*this)[j-Dim];
     w->gcd(f->lm(),g->lm());
 
-    IMyMonom64 *q1(mInterface_local->create()), *q2(mInterface_local->create());
+    Monom64 *q1 = new Monom64(), *q2 = new Monom64();
     q1->divide(f->lm(),*w);
     q2->divide(g->lm(),*w);
     delete w;
 
-    IMyPoly64 *r1 = pInterface_local->copy(*f),
-              *r2 = pInterface_local->copy(*g);
+    Poly64 *r1 = new Poly64(*f),
+           *r2 = new Poly64(*g);
     r1->mult(*q2); delete q2;
     r2->mult(*q1); delete q1;
     r1->add(*r2); delete r2;
@@ -49,37 +49,33 @@ IMyPoly64* IGBasis64::S(int i, int j){
   }
 }
 
-IGBasis64::IGBasis64():
-  basis(), vars(), mInterface_local(NULL), pInterface_local(NULL) {}
-
-IMyPoly64* findR(IMyPoly64& p, vector<IMyPoly64*> &Q){
+Poly64* findR(Poly64& p, vector<Poly64*> &Q){
   if (p.isZero()) return NULL;
-  vector<IMyPoly64*>::const_iterator iq(Q.begin()), q_end(Q.end());
-  IMyMonom64 *plm = (IMyMonom64*)&p.lm();
+  vector<Poly64*>::const_iterator iq(Q.begin()), q_end(Q.end());
+  Monom64 *plm = (Monom64*)&p.lm();
 
   while (iq!=q_end){
     if ( plm->divisibility((**iq).lm()) )
       return *iq;
     iq++;
   }
-
   return NULL;
 }
 
-IMyPoly64* Reduce(IMyPoly64 &p, vector<IMyPoly64*> &Q){
-  IMyPoly64 *r,*q;
-  IMyPoly64 *red;
-  q = p.polyInterface()->create();
-  q->setZero();
-  r = p.polyInterface()->copy(p);
+Poly64* Reduce(Poly64 &p, vector<Poly64*> &Q){
+  Poly64 *r,*q;
+  Poly64 *red;
+  q = new Poly64();
+  //q->setZero();
+  r = new Poly64(p);
   if (Q.empty()) return r;
-  vector<IMyPoly64*> rrq;
-  vector<IMyPoly64*>::iterator it;
+  vector<Poly64*> rrq;
+  vector<Poly64*>::iterator it;
 
   while (!r->isZero()){
     red = findR(*r,Q);
     while (red){
-      r->reduction(*red);
+      r->head_reduction(*red);
       red = findR(*r,Q);
     }
     if (!r->isZero()){
@@ -93,10 +89,10 @@ IMyPoly64* Reduce(IMyPoly64 &p, vector<IMyPoly64*> &Q){
 }
 
 void IGBasis64::ReduceSet(int i) {
-  vector<IMyPoly64*> R,P,Q;
-  vector<IMyPoly64*>::iterator ir(R.begin()), ip(P.begin()), iq(Q.begin());
-  vector<IMyPoly64*>::const_iterator j(basis.begin()), q_end, r_end, p_end;
-  IMyPoly64 *h,*h1;
+  vector<Poly64*> R,P,Q;
+  vector<Poly64*>::iterator ir(R.begin()), ip(P.begin()), iq(Q.begin());
+  vector<Poly64*>::const_iterator j(basis.begin()), q_end, r_end, p_end;
+  Poly64 *h,*h1;
   if (i)
     while (j!=basis.end()){
       ir=R.insert(ir,*j);
@@ -113,7 +109,7 @@ void IGBasis64::ReduceSet(int i) {
     ir = R.erase(ir);
     h = Reduce(*h,P);
     if (!h->isZero()){
-      IMyMonom64 *hlm=(IMyMonom64*)&h->lm();
+      Monom64 *hlm=(Monom64*)&h->lm();
       ip = P.begin();
       p_end = P.end();
       while (ip!=p_end){//P.end()){
@@ -148,6 +144,8 @@ void IGBasis64::ReduceSet(int i) {
   }
 
   R.clear();
+  Q.clear();
+  ir = R.begin();
   iq = Q.begin();
   ip = P.begin();
   p_end = P.end();
@@ -172,7 +170,7 @@ void IGBasis64::ReduceSet(int i) {
 }
 
 bool IGBasis64::criterion1(int i, int j, unsigned long &lcm, int &degree){
-  IMyPoly64 *f,*g;
+  Poly64 *f,*g;
   if (i<Dim)
     if (j<Dim)
       return false;
@@ -180,7 +178,9 @@ bool IGBasis64::criterion1(int i, int j, unsigned long &lcm, int &degree){
       g = (*this)[j-Dim];
       if (!g->lm().deg(i))
         return false;
-      lcm = g->lm().rank();
+      //lcm = g->lm().rank();
+      lcm = 1; lcm = lcm << i;
+      lcm |= g->lm().rank();
       degree = g->lm().degree() + 1;
       return true;
     }
@@ -192,7 +192,7 @@ bool IGBasis64::criterion1(int i, int j, unsigned long &lcm, int &degree){
       return false;
     }
     else{
-      IMyMonom64 *lcm_monom(mInterface_local->create());
+      Monom64 *lcm_monom = new Monom64();
       lcm_monom->lcm(f->lm(),g->lm());
       lcm = lcm_monom->rank();
       degree = lcm_monom->degree();
@@ -206,8 +206,8 @@ bool IGBasis64::criterion2(int i, int j){
   vector<bool> *ilist(&all_pairs[i]), *jlist=(&all_pairs[j]);
   vector<bool>::const_iterator iit((*ilist).end()), jit((*jlist).end());
   int k,len=length();
-  IMyPoly64 *tmp;
-  IMyMonom64 *lcm_monom(mInterface_local->copy((*this)[j-Dim]->lm()));
+  Poly64 *tmp;
+  Monom64 *lcm_monom = new Monom64( (*this)[j-Dim]->lm() );
   if (i>=Dim)
     lcm_monom->mult((*this)[i-Dim]->lm());
 
@@ -220,6 +220,7 @@ bool IGBasis64::criterion2(int i, int j){
 	return false;
     }
   }
+  //delete lcm_monom;
   return true;
 }
 
@@ -235,19 +236,10 @@ void ShowPairs(vector<Pair*>& plist){
   cout<<endl<<endl;
 }
 
-void SelectPair(vector<Pair*>& plist, int& i, int& j){
-  p_iterator = plist.begin();
-  i = (*p_iterator)->i;
-  j = (*p_iterator)->j;
-  plist.erase(p_iterator);
-
-  return;
-}
-
-void IGBasis64::push_poly(IMyPoly64* p, int flag){
+void IGBasis64::push_poly(Poly64* p, int flag){
   int inum, jnum, k = length() + Dim, degree;
   unsigned long lcm;
-  vector<IMyPoly64*>::iterator basisIt(basis.begin());
+  vector<Poly64*>::iterator basisIt(basis.begin());
   vector<Pair*>::iterator mid, add_end, add_begin;
 
   basisIt=basis.insert(basisIt, p);
@@ -283,10 +275,9 @@ void IGBasis64::push_poly(IMyPoly64* p, int flag){
 }
 
 void IGBasis64::CalculateGB(){
-
   int k = length() + Dim, inum, jnum, degree;
   unsigned long lcm;
-  IMyPoly64 *h, *spoly;
+  Poly64 *h, *spoly;
 
   for (inum=0; inum<k; inum++){
     vector<bool> k1;
@@ -307,8 +298,7 @@ void IGBasis64::CalculateGB(){
   sort(ref_to_pairs.begin(),ref_to_pairs.end(),Compare_ref_to_Pair);
 
   while (!ref_to_pairs.empty()){
-    //cout<<*this;ShowPairs(ref_to_pairs);
-    SelectPair(ref_to_pairs,inum,jnum);
+    SelectPair(inum,jnum);
     all_pairs[inum][jnum]=false;
     all_pairs[jnum][inum]=false;
 
@@ -325,30 +315,19 @@ void IGBasis64::CalculateGB(){
   }
 }
 
-IGBasis64::IGBasis64(vector<IMyPoly64*> set):
-  basis(), vars(), mInterface_local(NULL), pInterface_local(NULL) {
+IGBasis64::IGBasis64(vector<Poly64*> &set): basis()  {
+  vector<Poly64*>::const_iterator i1(set.begin());
+  vector<Poly64*>::iterator i2(basis.begin());
 
-  vector<IMyPoly64*> drv;
-
-  vector<IMyPoly64*>::const_iterator i1(set.begin());
-  vector<IMyPoly64*>::iterator i2(basis.begin()), id(drv.begin());
-
-  mInterface_local = (**i1).monomInterface();
-  pInterface_local = (**i1).polyInterface();
-  Dim = mInterface_local->dimIndepend();
+  Dim = (**i1).lm().dimIndepend();
   int i, j;
-  IMyPoly64 *tmp;
 
   while (i1!=set.end()){
-    i2=basis.insert(i2, pInterface_local->copy(**i1));
-    //i2=basis.insert(i2, (**i1).deriv1()); if (!(*i2)) i2 = basis.erase(i2);
-    //i2=basis.insert(i2, (**i1).deriv2()); if (!(*i2)) i2 = basis.erase(i2);
-
+    i2=basis.insert(i2, new Poly64(**i1));
     for (i = 0; i < Dim; i++){
-      i2=basis.insert(i2, pInterface_local->copy(**i1));
+      i2=basis.insert(i2, new Poly64(**i1));
       (**i2).mult(i);
     }
-
     ++i1;
   }
 

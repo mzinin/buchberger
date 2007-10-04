@@ -9,14 +9,14 @@ void init64(char* filename){
   ifstream fin(filename);
   ITimer timer;
 
-  IVariables vars;
+  //IVariables vars;
   //-----чтение переменных
   int i=0;
   char s[524288],c='0';
   while ( c!=';' ){
   	fin>>c;
 	if (c==',' || c==';') {
-		vars.add(s);
+		Monom64::mIndepend->add(s);
 		s[0]='\0';
 		i=0;
 	}
@@ -27,13 +27,11 @@ void init64(char* filename){
 	}
   }
   //-----конец чтения переменных
+  Monom64::Init();
 
-  IMyMonomInterface64 mInterface = IMyMonomInterface64(&vars);
-  IMyPolyInterface64 *pInterface = IMyPolyInterface64::create(&mInterface);
-
-  IMyPoly64 *poly = pInterface->create();
-  vector<IMyPoly64*> pl, answer;
-  vector<IMyPoly64*>::iterator it(pl.begin()), an_it(answer.begin());
+  Poly64 poly;
+  vector<Poly64*> pl, answer;
+  vector<Poly64*>::iterator it(pl.begin()), an_it(answer.begin());
 
   i=0;
   s[0]='\0';
@@ -53,8 +51,8 @@ void init64(char* filename){
 
   tmp_in.open("tmp1");
   while (!tmp_in.eof()){
-    tmp_in>>*poly;
-    it=pl.insert(it, pInterface->copy(*poly));
+    tmp_in>>poly;
+    it=pl.insert(it, new Poly64(poly));
   }
   tmp_in.close();
   //-----конец чтения исходного базиса
@@ -75,8 +73,8 @@ void init64(char* filename){
 
   tmp_in2.open("tmp2");
   while (!tmp_in2.eof()){
-    tmp_in2>>*poly;
-    an_it=answer.insert(an_it, pInterface->copy(*poly));
+    tmp_in2>>poly;
+    an_it=answer.insert(an_it, new Poly64(poly));
   }
   tmp_in2.close();
   //-----конец чтения ответа

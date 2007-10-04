@@ -1,6 +1,6 @@
 #include <vector>
 #include <algorithm>
-#include "imypoly64.h"
+#include "poly64.h"
 
 struct Pair {
   short int i, j, degree;
@@ -17,45 +17,48 @@ struct Pair {
   void operator delete(void *ptr) { sAllocator.deallocate(ptr); }
 };
 
-IMyPoly64* findR(IMyPoly64& p, vector<IMyPoly64*> &Q);
-IMyPoly64* Reduce(IMyPoly64& p, vector<IMyPoly64*> &Q);
+Poly64* findR(Poly64& p, vector<Poly64*> &Q);
+Poly64* Reduce(Poly64& p, vector<Poly64*> &Q);
 
 class IGBasis64{
 protected:
-  vector<IMyPoly64*> basis;
-  IVariables vars;
-  IMyMonomInterface64* mInterface_local;
-  IMyPolyInterface64* pInterface_local;
+  vector<Poly64*> basis;
   int Dim;
   vector< vector<bool> > all_pairs;
   vector<Pair*> ref_to_pairs;
 
   bool criterion1(int i, int j, unsigned long &lcm, int &degree);
   bool criterion2(int i, int j);
-  void push_poly(IMyPoly64* p, int flag);
+  void push_poly(Poly64* p, int flag);
   void CalculateGB();
 
 public:
-  IGBasis64();
-  IGBasis64(vector<IMyPoly64*> set);
+  IGBasis64(): basis() {};
+  IGBasis64(vector<Poly64*> &set);
   ~IGBasis64() {}
 
-  IMyPoly64* operator[](int num);
-  IMyPoly64* S(int i,int j);
+  Poly64* operator[](int num);
+  Poly64* S(int i,int j);
+  void SelectPair(int& i, int& j);
   int length();
   void ReduceSet(int i);
-
-  IMyMonomInterface64* monomInterface() const {return mInterface_local;}
-  IMyPolyInterface64*  polyInterface()  const {return pInterface_local;}
 
   friend std::ostream& operator<<(std::ostream& out, IGBasis64& GBasis);
 };
 
-inline IMyPoly64* IGBasis64::operator[](int num){
-  //IASSERT(0<=num && num<length());
-  vector<IMyPoly64*>::const_iterator it(basis.begin());
+inline Poly64* IGBasis64::operator[](int num){
+  vector<Poly64*>::const_iterator it(basis.begin());
   it+=length()-1-num;
   return *it;
+}
+
+inline void IGBasis64::SelectPair(int& i, int& j){
+  vector<Pair*>::iterator p_iterator = ref_to_pairs.end();
+  p_iterator--;
+  i = (*p_iterator)->i;
+  j = (*p_iterator)->j;
+  ref_to_pairs.pop_back();
+  return;
 }
 
 inline int IGBasis64::length(){
