@@ -10,13 +10,13 @@ using namespace std;
 
 class Monom64 {
 protected:
-  unsigned long mTotalDegree;
-  unsigned long exp;
+  unsigned long long mTotalDegree;
+  unsigned long long exp;
 
   static int mDimIndepend;
   static IAllocator sAllocator;
-  static unsigned long Zero[64], One[64];
-  static unsigned long degrees[256];
+  static unsigned long long Zero[64], One[64];
+  static unsigned long long degrees[256];
 
 public:
   Monom64* Next;
@@ -33,7 +33,7 @@ public:
   unsigned deg(int var) const;
   unsigned operator[](int var) const { return deg(var); }
   unsigned degree() const;
-  unsigned long rank() const;
+  unsigned long long rank() const;
 
   void set(const Monom64& a);
   void operator=(const Monom64& a) { set(a); }
@@ -81,7 +81,7 @@ inline unsigned Monom64::degree() const {
   return mTotalDegree;
 }
 
-inline unsigned long Monom64::rank() const {
+inline unsigned long long Monom64::rank() const {
     return exp;
 }
 
@@ -146,7 +146,7 @@ inline void Monom64::mult(const Monom64& a, const Monom64& b) {
 }
 
 inline bool Monom64::divisibility(const Monom64& a) const{
-  unsigned long d(exp ^ a.exp);
+  unsigned long long d(exp ^ a.exp);
   d &= a.exp;
   if(d!=0)
     return false;
@@ -155,7 +155,7 @@ inline bool Monom64::divisibility(const Monom64& a) const{
 }
 
 inline bool Monom64::divisibilityTrue(const Monom64& a) const {
-  unsigned long d(exp ^ a.exp);
+  unsigned long long d(exp ^ a.exp);
   if (d==0)
     return false;
   else{
@@ -177,7 +177,7 @@ inline void Monom64::divide1(const Monom64& a, const Monom64& b) {
 }
 
 inline unsigned Monom64::gcd(const Monom64& a) const {
-  unsigned long d(exp & a.exp);
+  unsigned long long d(exp & a.exp);
   unsigned char *c = (unsigned char*)&d;
   unsigned r = degrees[*c];
   for (int i=0; i<7; i++){
@@ -188,7 +188,7 @@ inline unsigned Monom64::gcd(const Monom64& a) const {
 }
 
 inline unsigned Monom64::lcm(const Monom64& a) const {
-  unsigned long d(exp | a.exp);
+  unsigned long long d(exp | a.exp);
   unsigned char *c = (unsigned char*)&d;
   unsigned r = degrees[*c];
   for (int i=0; i<7; i++){
@@ -219,7 +219,7 @@ inline void Monom64::lcm(const Monom64& a, const Monom64& b) {
 }
 
 inline bool Monom64::equality(const Monom64& a, int var, unsigned degree) const {
-  unsigned long d(1);
+  unsigned long long d(1);
   d = d<<var;
   d |= a.exp;
   return exp==d;

@@ -1,6 +1,6 @@
 #include <iostream>
 #include "igroebner64.h"
-#include "itimer.h"
+#include "timer.h"
 
 using namespace std;
 

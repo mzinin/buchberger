@@ -2,23 +2,63 @@
 #include <fstream>
 #include "ivariables.h"
 #include "init64.h"
+#include "version.h"
 
 using namespace std;
 
+void Usage(const char* applicationName)
+{
+    std::cout << "Usage:" << std::endl;
+    std::cout <<"\t" << applicationName << " <file_name.gnv> - execute given task;" << std::endl;
+    std::cout <<"\t" << applicationName << " -v, --version - print version;" << std::endl;
+    std::cout <<"\t" << applicationName << " -h, --help - print this message." << std::endl;
+}
+
+void PrintVersion()
+{
+    std::cout << "version " << GetVersion().GetMajor() << "." << GetVersion().GetMinor() << "." << GetVersion().GetRevision() << std::endl;
+}
+
 int main(int argc, char *argv[])
 {
-  ifstream fin;
-  if (argc==1){
-    cout<<"Укажите файл .gnv"<<endl;
-    return 1;
-  }
-  else{
-    fin.open(argv[1]);
-    if (!fin){
-      cout<<"Нет такого файла."<<endl;
-      return 1;
+    ifstream fin;
+    //parse command line arguments
+    switch (argc)
+    {
+        case 1:
+            Usage(argv[0]);
+            return EXIT_FAILURE;
+            break;
+        case 2:
+            for (register int i = 1; i < argc; ++i)
+            {
+                if (!strcmp(argv[i], "-v") || !strcmp(argv[i], "--version"))
+                {
+                    PrintVersion();
+                    return EXIT_SUCCESS;
+                }
+                else if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help"))
+                {
+                    Usage(argv[0]);
+                    return EXIT_SUCCESS;
+                }
+                else
+                {
+                    fin.open(argv[i]);
+                    if (!fin)
+                    {
+                        cout << "No such file:" << argv[i] << endl;
+                        return EXIT_FAILURE;
+                    }
+                }
+            }
+            break;
+        default:
+            std::cout << "Too many arguments." << std::endl;
+            Usage(argv[0]);
+            return EXIT_FAILURE;
+            break;
     }
-  }
 
   IVariables vars;
   //-----подсчет переменных

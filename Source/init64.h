@@ -1,13 +1,13 @@
 #include <iostream>
 #include <fstream>
-#include "itimer.h"
+#include "timer.h"
 #include "igroebner64.h"
 
 using namespace std;
 
 void init64(char* filename){
   ifstream fin(filename);
-  ITimer timer;
+  Timer timer;
 
   //IVariables vars;
   //-----чтение переменных
@@ -80,9 +80,9 @@ void init64(char* filename){
   //-----конец чтения ответа
   fin.close();
 
-  timer.start();
+  timer.Start();
   IGBasis64 bg(pl);
-  timer.stop();
+  timer.Stop();
   //cout<<bg<<endl;
   cout<<timer<<endl;
 

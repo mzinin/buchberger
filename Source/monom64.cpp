@@ -152,6 +152,6 @@ std::ostream& operator<<(std::ostream& out, const Monom64& a) {
 
 IVariables* Monom64::mIndepend = new IVariables();
 IAllocator Monom64::sAllocator(sizeof(Monom64));
-unsigned long Monom64::Zero[64], Monom64::One[64];
-unsigned long Monom64::degrees[256];
+unsigned long long Monom64::Zero[64], Monom64::One[64];
+unsigned long long Monom64::degrees[256];
 int Monom64::mDimIndepend;
