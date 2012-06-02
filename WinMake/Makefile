@@ -11,13 +11,13 @@ SOURCE = ..\Source
 BINARY = .\
 
 
-all: myginv.exe
+all: buhberger.exe
 
-myginv.exe: myginv.res myginv.obj version.obj igroebner64.obj poly64.obj monom64.obj iallocator.obj ivariables.obj timer.obj
+buhberger.exe: buhberger.res main.obj version.obj igroebner64.obj poly64.obj monom64.obj iallocator.obj ivariables.obj timer.obj
     @del $(BINARY)\*.exe 2> NUL
-    $(LINK) $(LINKFLAGS) /OUT:$(BINARY)\myginv.exe \
-            $(BINARY)\myginv.res \
-            $(BINARY)\myginv.obj \
+    $(LINK) $(LINKFLAGS) /OUT:$(BINARY)\buhberger.exe \
+            $(BINARY)\buhberger.res \
+            $(BINARY)\main.obj \
             $(BINARY)\version.obj \
             $(BINARY)\igroebner64.obj \
             $(BINARY)\poly64.obj \
@@ -28,12 +28,12 @@ myginv.exe: myginv.res myginv.obj version.obj igroebner64.obj poly64.obj monom64
     @del $(BINARY)\*.obj
     @del $(BINARY)\*.res
     @echo ***** Building successfully completed *****
+    
+buhberger.res: buhberger.rc $(SOURCE)\version.h
+    $(RC) /fo buhberger.res buhberger.rc 2> NUL
 
-myginv.res: myginv.rc $(SOURCE)\version.h
-    $(RC) /fo myginv.res myginv.rc 2> NUL
-
-myginv.obj: $(SOURCE)\init64.h $(SOURCE)\ivariables.h $(SOURCE)\igroebner64.h $(SOURCE)\version.h $(SOURCE)\timer.h
-    $(CXX) $(CXXFLAGS) $(SOURCE)\myginv.cpp /Fo $(BINARY)\myginv.obj 2> NUL
+main.obj: $(SOURCE)\init64.h $(SOURCE)\ivariables.h $(SOURCE)\igroebner64.h $(SOURCE)\version.h $(SOURCE)\timer.h
+    $(CXX) $(CXXFLAGS) $(SOURCE)\main.cpp /Fo $(BINARY)\main.obj 2> NUL
 
 version.obj: $(SOURCE)\version.h
     $(CXX) $(CXXFLAGS) $(SOURCE)\version.cpp /Fo $(BINARY)\version.obj 2> NUL

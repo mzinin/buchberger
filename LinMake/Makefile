@@ -3,11 +3,11 @@ CXXFLAGS = -O3 -c
 SOURCE = ../Source
 BINARY = .
 
-all: myginv
+all: buhberger
 
-myginv: myginv.o version.o igroebner64.o poly64.o monom64.o iallocator.o ivariables.o timer.o
+buhberger: main.o version.o igroebner64.o poly64.o monom64.o iallocator.o ivariables.o timer.o
 	$(CXX) \
-            $(BINARY)/myginv.o \
+            $(BINARY)/main.o \
             $(BINARY)/version.o \
             $(BINARY)/igroebner64.o \
             $(BINARY)/poly64.o \
@@ -15,11 +15,11 @@ myginv: myginv.o version.o igroebner64.o poly64.o monom64.o iallocator.o ivariab
             $(BINARY)/iallocator.o \
             $(BINARY)/ivariables.o \
             $(BINARY)/timer.o \
-            -o $(BINARY)/myginv
+            -o $(BINARY)/buhberger
 	@rm $(BINARY)/*.o
 
-myginv.o: $(SOURCE)/init64.h $(SOURCE)/ivariables.h $(SOURCE)/igroebner64.h $(SOURCE)/version.h $(SOURCE)/timer.h
-	$(CXX) $(CXXFLAGS) $(SOURCE)/myginv.cpp -o $(BINARY)/myginv.o
+main.o: $(SOURCE)/init64.h $(SOURCE)/ivariables.h $(SOURCE)/igroebner64.h $(SOURCE)/version.h $(SOURCE)/timer.h
+	$(CXX) $(CXXFLAGS) $(SOURCE)/main.cpp -o $(BINARY)/main.o
 
 version.o: $(SOURCE)/version.h
 	$(CXX) $(CXXFLAGS) $(SOURCE)/version.cpp -o $(BINARY)/version.o

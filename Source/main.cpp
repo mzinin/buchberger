@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 		s[i]='\0';
 	}
   }
-  //-----конец подсчета переменных
+  //-----конец аодсчета переменных
   fin.close();
 
   int bytes = (vars.dim()-1)/64;
