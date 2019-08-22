@@ -1,9 +1,7 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define MAJOR_VESION 0
-#define MINOR_VERSION 2
-#define REVISION 3
+#include "current_version.h"
 
 class VersionInfo
 {

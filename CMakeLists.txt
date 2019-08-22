@@ -24,6 +24,11 @@ ELSEIF (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 ENDIF ()
 
 
+CONFIGURE_FILE (
+    "${CMAKE_CURRENT_SOURCE_DIR}/resources/current_version.h.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/current_version.h"
+)
+
 SET (HEADERS
     "src/iallocator.h"
     "src/igroebner64.h"
@@ -48,8 +53,13 @@ SET (SOURCES
 )
 
 IF (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    CONFIGURE_FILE (
+        "${CMAKE_CURRENT_SOURCE_DIR}/resources/buhberger.rc.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/buhberger.rc"
+    )
+
     SET (RESOURCES
-        "resources/buhberger.rc"
+        "${CMAKE_CURRENT_BINARY_DIR}/buhberger.rc"
     )
 ENDIF ()
 
@@ -58,4 +68,8 @@ ADD_EXECUTABLE (${PROJECT_NAME}
     ${HEADERS}
     ${SOURCES}
     ${RESOURCES}
+)
+
+TARGET_INCLUDE_DIRECTORIES (${PROJECT_NAME}
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
 )
