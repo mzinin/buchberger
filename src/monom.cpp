@@ -1,6 +1,6 @@
-#include "monom64.h"
+#include "monom.h"
 
-void Monom64::init()
+void Monom::init()
 {
     dimIndepend_ = independ->dim();
     for (int i = 0; i < 64; ++i)
@@ -76,14 +76,14 @@ void Monom64::init()
     degrees_[252] = 6; degrees_[253] = 7; degrees_[254] = 7; degrees_[255] = 8;
 }
 
-int Monom64::compare(const Monom64& a, const Monom64& b) const
+int Monom::compare(const Monom& a, const Monom& b) const
 {
-    Monom64 tmp(a);
+    Monom tmp(a);
     tmp.mult(b);
     return compare(tmp);
 }
 
-std::istream& operator>>(std::istream& in, Monom64& a)
+std::istream& operator>>(std::istream& in, Monom& a)
 {
     std::streampos posbeg = in.tellg();
     int var = a.independ->read(in);
@@ -138,7 +138,7 @@ std::istream& operator>>(std::istream& in, Monom64& a)
     return in;
 }
 
-std::ostream& operator<<(std::ostream& out, const Monom64& a)
+std::ostream& operator<<(std::ostream& out, const Monom& a)
 {
     if (a.degree() == 0)
     {
@@ -147,7 +147,7 @@ std::ostream& operator<<(std::ostream& out, const Monom64& a)
     else
     {
         int i = 0;
-        IVariables::ConstIterator j(a.independ->begin());
+        Variables::ConstIterator j(a.independ->begin());
         while (a.deg(i) == 0)
         {
             ++i;
@@ -180,11 +180,11 @@ std::ostream& operator<<(std::ostream& out, const Monom64& a)
     return out;
 }
 
-IVariables* Monom64::independ = new IVariables();
-IAllocator Monom64::allocator_(sizeof(Monom64));
+Variables* Monom::independ = new Variables();
+Allocator Monom::allocator_(sizeof(Monom));
 
-uint64_t Monom64::zero_[64];
-uint64_t Monom64::one_[64];
-uint64_t Monom64::degrees_[256];
+uint64_t Monom::zero_[64];
+uint64_t Monom::one_[64];
+uint64_t Monom::degrees_[256];
 
-size_t Monom64::dimIndepend_;
+size_t Monom::dimIndepend_;

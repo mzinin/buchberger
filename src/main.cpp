@@ -1,5 +1,5 @@
-#include "init64.h"
-#include "ivariables.h"
+#include "init.h"
+#include "variables.h"
 #include "version.h"
 
 #include <iostream>
@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    IVariables vars;
+    Variables vars;
     // start counting variables
     int i = 0;
     char s[161840];
@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
     switch (bytes)
     {
     case 0:
-        init64(argv[1]);
+        init(argv[1]);
         break;
     }
 

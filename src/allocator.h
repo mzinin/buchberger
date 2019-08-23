@@ -1,9 +1,9 @@
 #pragma once
 
-#include "iutil.h"
+#include "util.h"
 
 
-class IAllocator
+class Allocator
 {
 private:
     enum
@@ -17,7 +17,7 @@ public:
         return maxMemory_ * MEMORY_PAGE_SIZE;
     }
 
-    IAllocator(const size_t n);
+    Allocator(const size_t n);
 
     inline void* allocate()
     {

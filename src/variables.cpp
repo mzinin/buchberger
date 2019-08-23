@@ -1,4 +1,4 @@
-#include "ivariables.h"
+#include "variables.h"
 
 #include <cctype>
 
@@ -25,7 +25,7 @@ namespace
     }
 }
 
-void IVariables::add(const char *var)
+void Variables::add(const char *var)
 {
     int n = strlen(var);
     char* name = new char[n+1];
@@ -52,7 +52,7 @@ void IVariables::add(const char *var)
     list_.push_back(name);
 }
 
-int IVariables::find(const char *var) const
+int Variables::find(const char *var) const
 {
     int r = 0;
     ConstIterator i(list_.begin());
@@ -70,7 +70,7 @@ int IVariables::find(const char *var) const
     return r;
 }
 
-int IVariables::read(std::istream& in) const
+int Variables::read(std::istream& in) const
 {
     std::streampos posbeg = in.tellg(), posend;
     int varCurrent = 0, var = -1;

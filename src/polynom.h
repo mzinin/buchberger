@@ -1,11 +1,11 @@
 #pragma once
 
-#include "monom64.h"
+#include "monom.h"
 
 #include <iostream>
 
 
-class Poly64
+class Polynom
 {
 public:
     class Iterator;
@@ -13,7 +13,7 @@ public:
     class ConstIterator
     {
     public:
-        ConstIterator(const Monom64* constIt)
+        ConstIterator(const Monom* constIt)
             : constIt_(constIt)
         {
         }
@@ -33,17 +33,17 @@ public:
             return constIt_->next;
         }
 
-        const Monom64& monom() const
+        const Monom& monom() const
         {
             return *constIt_;
         }
 
-        const Monom64& operator*() const
+        const Monom& operator*() const
         {
             return *constIt_;
         }
 
-        const Monom64* operator->() const
+        const Monom* operator->() const
         {
             return constIt_;
         }
@@ -64,16 +64,16 @@ public:
         }
 
     private:
-        friend class Poly64;
+        friend class Polynom;
         friend class Iterator;
 
-        const Monom64* constIt_ = nullptr;
+        const Monom* constIt_ = nullptr;
     };
 
     class Iterator
     {
     public:
-        Iterator(Monom64*& it)
+        Iterator(Monom*& it)
             : it_(&it)
         {
         }
@@ -93,17 +93,17 @@ public:
             return (*it_)->next;
         }
 
-        const Monom64& monom() const
+        const Monom& monom() const
         {
             return **it_;
         }
 
-        Monom64& operator*() const
+        Monom& operator*() const
         {
             return **it_;
         }
 
-        Monom64* operator->() const
+        Monom* operator->() const
         {
             return *it_;
         }
@@ -123,16 +123,16 @@ public:
             return *it_ != *a.it_;
         }
 
-        void insert(const Monom64 &m)
+        void insert(const Monom &m)
         {
-            Monom64* tmp = new Monom64(m);
+            Monom* tmp = new Monom(m);
             tmp->next = *it_;
             *it_ = tmp;
         }
 
         void insertNoCopy(Iterator another)
         {
-            Monom64* tmp = *another.it_;
+            Monom* tmp = *another.it_;
             *another.it_ = (*another.it_)->next;
             tmp->next = *it_;
             *it_ = tmp;
@@ -140,7 +140,7 @@ public:
 
         void insert(ConstIterator another)
         {
-            Monom64* tmp = const_cast<Monom64*>(another.constIt_);
+            Monom* tmp = const_cast<Monom*>(another.constIt_);
             tmp->next = *it_;
             *it_ = tmp;
         }
@@ -149,14 +149,14 @@ public:
         {
             ConstIterator result(*it_);
             *it_ = (*it_)->next;
-            Monom64* tmp = const_cast<Monom64*>(result.constIt_);
+            Monom* tmp = const_cast<Monom*>(result.constIt_);
             tmp->next = nullptr;
             return result;
         }
 
         void del()
         {
-            Monom64* tmp = *it_;
+            Monom* tmp = *it_;
             *it_ = (*it_)->next;
             delete tmp;
         }
@@ -177,33 +177,33 @@ public:
         }
 
     private:
-        friend class Poly64;
+        friend class Polynom;
         friend class ConstIterator;
 
-        Monom64** it_ = nullptr;
+        Monom** it_ = nullptr;
     };
 
 
 public:
-    Poly64() = default;
-    Poly64(const Poly64& a);
-    Poly64(const Poly64& a, int var);
-    Poly64(const Poly64& a, const Monom64& m);
+    Polynom() = default;
+    Polynom(const Polynom& a);
+    Polynom(const Polynom& a, int var);
+    Polynom(const Polynom& a, const Monom& m);
 
-    ~Poly64()
+    ~Polynom()
     {
         begin().clear();
     }
 
     void setOne();
     void setZero();
-    void set(const Poly64& a);
-    void operator=(const Poly64& a)
+    void set(const Polynom& a);
+    void operator=(const Polynom& a)
     {
         set(a);
     }
 
-    void swap(Poly64& a);
+    void swap(Polynom& a);
     bool isZero() const;
     size_t length() const;
 
@@ -211,34 +211,34 @@ public:
     int degreeOfMonom(int i) const;
     int deg(int var);
 
-    const Monom64& lm() const;
-    const Monom64& monom(int i) const;
+    const Monom& lm() const;
+    const Monom& monom(int i) const;
     void ridOfLm();
 
-    void add(const Monom64 &m);
-    void add(const Poly64& a);
-    void addNoCopy(Poly64& a);
-    void sub(const Poly64& a)
+    void add(const Monom &m);
+    void add(const Polynom& a);
+    void addNoCopy(Polynom& a);
+    void sub(const Polynom& a)
     {
         add(a);
     }
 
     void mult(int var);
     void mult(int var, unsigned deg);
-    void mult(const Monom64& m);
-    void mult(const Poly64& a);
+    void mult(const Monom& m);
+    void mult(const Polynom& a);
 
     void pow(unsigned deg);
-    void reduction(const Poly64& a);
-    void headReduction(const Poly64& a);
+    void reduction(const Polynom& a);
+    void headReduction(const Polynom& a);
 
     ConstIterator begin() const;
     Iterator begin();
 
-    friend std::ostream& operator<<(std::ostream& out, const Poly64& a);
-    friend std::istream& operator>>(std::istream& in, Poly64& a);
-    friend bool operator==(const Poly64& a, const Poly64& b);
-    friend bool operator!=(const Poly64& a, const Poly64& b)
+    friend std::ostream& operator<<(std::ostream& out, const Polynom& a);
+    friend std::istream& operator>>(std::istream& in, Polynom& a);
+    friend bool operator==(const Polynom& a, const Polynom& b);
+    friend bool operator!=(const Polynom& a, const Polynom& b)
     {
         return !(a==b);
     }
@@ -253,18 +253,18 @@ private:
     void bracket(std::istream& in);
 
 private:
-    Monom64* head_ = nullptr;
+    Monom* head_ = nullptr;
     size_t len_ = 0;
 };
 
-inline const Monom64& Poly64::lm() const
+inline const Monom& Polynom::lm() const
 {
     return *head_;
 }
 
-inline const Monom64& Poly64::monom(int i) const
+inline const Monom& Polynom::monom(int i) const
 {
-    const Monom64* r = head_;
+    const Monom* r = head_;
     for (int j = 0; j < i; ++j)
     {
         r = r->next;
@@ -272,12 +272,12 @@ inline const Monom64& Poly64::monom(int i) const
     return *r;
 }
 
-inline size_t Poly64::length() const
+inline size_t Polynom::length() const
 {
     return len_;
 }
 
-inline bool Poly64::isZero() const
+inline bool Polynom::isZero() const
 {
     return !head_;
 }

@@ -1,10 +1,10 @@
-#include "poly64.h"
+#include "polynom.h"
 
 #include <cstdarg>
 #include <cstring>
 
 
-Poly64::Poly64(const Poly64& a)
+Polynom::Polynom(const Polynom& a)
     : len_(a.len_)
 {
     ConstIterator ia(a.head_);
@@ -18,7 +18,7 @@ Poly64::Poly64(const Poly64& a)
     }
 }
 
-Poly64::Poly64(const Poly64& a, int var)
+Polynom::Polynom(const Polynom& a, int var)
     : len_(a.len_)
 {
     ConstIterator ia(a.head_);
@@ -33,7 +33,7 @@ Poly64::Poly64(const Poly64& a, int var)
     mult(var);
 }
 
-Poly64::Poly64(const Poly64& a, const Monom64& m)
+Polynom::Polynom(const Polynom& a, const Monom& m)
     : len_(a.len_)
 {
     ConstIterator ia(a.head_);
@@ -48,15 +48,15 @@ Poly64::Poly64(const Poly64& a, const Monom64& m)
     mult(m);
 }
 
-void Poly64::setOne()
+void Polynom::setOne()
 {
     Iterator i(head_);
     i.clear();
-    head_ = new Monom64();
+    head_ = new Monom();
     len_ = 1;
 }
 
-void Poly64::setZero()
+void Polynom::setZero()
 {
     Iterator i(head_);
     i.clear();
@@ -64,7 +64,7 @@ void Poly64::setZero()
     len_ = 0;
 }
 
-void Poly64::set(const Poly64& a)
+void Polynom::set(const Polynom& a)
 {
     Iterator i(head_);
     i.clear();
@@ -79,9 +79,9 @@ void Poly64::set(const Poly64& a)
     len_ = a.len_;
 }
 
-void Poly64::swap(Poly64& a)
+void Polynom::swap(Polynom& a)
 {
-    Monom64 *tmp = head_;
+    Monom *tmp = head_;
     head_ = a.head_;
     a.head_ = tmp;
 
@@ -90,12 +90,12 @@ void Poly64::swap(Poly64& a)
     a.len_ = itmp;
 }
 
-int Poly64::degree() const
+int Polynom::degree() const
 {
     return head_ ? head_->degree() : -100;
 }
 
-int Poly64::degreeOfMonom(int i) const
+int Polynom::degreeOfMonom(int i) const
 {
     ConstIterator cit(head_);
     for (int j = 0; j < i; ++j)
@@ -105,7 +105,7 @@ int Poly64::degreeOfMonom(int i) const
     return cit->degree();
 }
 
-int Poly64::deg(int var)
+int Polynom::deg(int var)
 {
     ConstIterator i(head_);
     int output = 0;
@@ -121,14 +121,14 @@ int Poly64::deg(int var)
     return output;
 }
 
-void Poly64::ridOfLm()
+void Polynom::ridOfLm()
 {
     Iterator i(head_);
     i.del();
     --len_;
 }
 
-void Poly64::add(const Monom64& m)
+void Polynom::add(const Monom& m)
 {
     Iterator i(head_);
     bool placed = false;
@@ -162,7 +162,7 @@ void Poly64::add(const Monom64& m)
     }
 }
 
-void Poly64::add(const Poly64& a)
+void Polynom::add(const Polynom& a)
 {
     Iterator i1(head_);
     ConstIterator i2(a.head_);
@@ -199,7 +199,7 @@ void Poly64::add(const Poly64& a)
     }
 }
 
-void Poly64::addNoCopy(Poly64& a)
+void Polynom::addNoCopy(Polynom& a)
 {
     Iterator i1(head_);
     Iterator i2(a.head_);
@@ -234,14 +234,14 @@ void Poly64::addNoCopy(Poly64& a)
     }
 }
 
-void Poly64::mult(int var)
+void Polynom::mult(int var)
 {
     if (isZero())
     {
         return;
     }
 
-    Poly64* tmpNoX = new Poly64();
+    Polynom* tmpNoX = new Polynom();
     Iterator it(head_);
     Iterator itNoX(tmpNoX->head_);
 
@@ -270,7 +270,7 @@ void Poly64::mult(int var)
     delete tmpNoX;
 }
 
-void Poly64::mult(int var, unsigned deg)
+void Polynom::mult(int var, unsigned deg)
 {
     if (var > 0 && deg > 1)
     {
@@ -278,7 +278,7 @@ void Poly64::mult(int var, unsigned deg)
     }
 }
 
-void Poly64::mult(const Monom64& m)
+void Polynom::mult(const Monom& m)
 {
     if (isZero())
     {
@@ -294,14 +294,14 @@ void Poly64::mult(const Monom64& m)
     }
 }
 
-void Poly64::mult(const Poly64 &a)
+void Polynom::mult(const Polynom &a)
 {
-    Poly64* p = new Poly64();
+    Polynom* p = new Polynom();
     ConstIterator ia(a.head_);
 
     while (ia)
     {
-        Poly64* tmp = new Poly64(*this, *ia);
+        Polynom* tmp = new Polynom(*this, *ia);
         p->addNoCopy(*tmp);
         delete tmp;
         ++ia;
@@ -311,15 +311,15 @@ void Poly64::mult(const Poly64 &a)
     delete p;
 }
 
-void Poly64::pow(unsigned deg)
+void Polynom::pow(unsigned deg)
 {
     //степеней-то нет, эта функция ничего не делает
 }
 
-void Poly64::reduction(const Poly64 &a)
+void Polynom::reduction(const Polynom &a)
 {
-    Monom64* m2 = new Monom64();
-    Poly64* p = nullptr;
+    Monom* m2 = new Monom();
+    Polynom* p = nullptr;
 
     ConstIterator j(head_);
     while (j)
@@ -327,7 +327,7 @@ void Poly64::reduction(const Poly64 &a)
         if (j->divisibility(a.lm()))
         {
             m2->divide(*j, a.lm());
-            p = new Poly64(a);
+            p = new Polynom(a);
             p->mult(*m2);
             addNoCopy(*p);
             delete p;
@@ -352,7 +352,7 @@ void Poly64::reduction(const Poly64 &a)
         if (i->divisibility(a.lm()))
         {
             m2->divide1(*i, a.lm());
-            p = new Poly64(a);
+            p = new Polynom(a);
             p->mult(*m2);
             addNoCopy(*p);
             delete p;
@@ -367,10 +367,10 @@ void Poly64::reduction(const Poly64 &a)
     }
 }
 
-void Poly64::headReduction(const Poly64 &a)
+void Polynom::headReduction(const Polynom &a)
 {
-    Monom64* m2 = new Monom64();
-    Poly64* p = nullptr;
+    Monom* m2 = new Monom();
+    Polynom* p = nullptr;
 
     ConstIterator j(head_);
     while (j)
@@ -378,7 +378,7 @@ void Poly64::headReduction(const Poly64 &a)
         if (j->divisibility(a.lm()))
         {
             m2->divide(*j, a.lm());
-            p = new Poly64(a);
+            p = new Polynom(a);
             p->mult(*m2);
             addNoCopy(*p);
             delete p;
@@ -391,17 +391,17 @@ void Poly64::headReduction(const Poly64 &a)
     }
 }
 
-Poly64::ConstIterator Poly64::begin() const
+Polynom::ConstIterator Polynom::begin() const
 {
     return head_;
 }
 
-Poly64::Iterator Poly64::begin()
+Polynom::Iterator Polynom::begin()
 {
     return head_;
 }
 
-std::ostream& operator<<(std::ostream& out, const Poly64& a)
+std::ostream& operator<<(std::ostream& out, const Polynom& a)
 {
     if (a.isZero())
     {
@@ -409,7 +409,7 @@ std::ostream& operator<<(std::ostream& out, const Poly64& a)
     }
     else
     {
-        Poly64::ConstIterator i(a.begin());
+        Polynom::ConstIterator i(a.begin());
         if ((*i).degree())
         {
             out << *i;
@@ -437,12 +437,12 @@ std::ostream& operator<<(std::ostream& out, const Poly64& a)
     return out;
 }
 
-void Poly64::additive(std::istream& in)
+void Polynom::additive(std::istream& in)
 {
     multiplicative(in);
 
     int op = (in >> std::ws).peek();
-    Poly64 tmp;
+    Polynom tmp;
     while (op == '+' || op == '-')
     {
         in.get();
@@ -452,12 +452,12 @@ void Poly64::additive(std::istream& in)
     }
 }
 
-void Poly64::multiplicative(std::istream& in)
+void Polynom::multiplicative(std::istream& in)
 {
     unary(in);
 
     int op = (in >> std::ws).peek();
-    Poly64 tmp;
+    Polynom tmp;
     while(op == '*')
     {
         in.get();
@@ -467,7 +467,7 @@ void Poly64::multiplicative(std::istream& in)
     }
 }
 
-void Poly64::unary(std::istream& in)
+void Polynom::unary(std::istream& in)
 {
     int ch = (in >> std::ws).peek();
     if (ch != '+' && ch != '-')
@@ -490,7 +490,7 @@ void Poly64::unary(std::istream& in)
     }
 }
 
-void Poly64::power(std::istream& in)
+void Polynom::power(std::istream& in)
 {
     bracket(in);
 
@@ -506,7 +506,7 @@ void Poly64::power(std::istream& in)
     }
 }
 
-void Poly64::bracket(std::istream& in)
+void Polynom::bracket(std::istream& in)
 {
     int op = (in >> std::ws).peek();
     if (op == '(')
@@ -521,7 +521,7 @@ void Poly64::bracket(std::istream& in)
     else
     {
         setOne();
-        Monom64 m;
+        Monom m;
         in >> m;
         if (!in.fail())
         {
@@ -538,20 +538,20 @@ void Poly64::bracket(std::istream& in)
     }
 }
 
-std::istream& operator>>(std::istream& in, Poly64& a)
+std::istream& operator>>(std::istream& in, Polynom& a)
 {
     a.additive(in);
     return in;
 }
 
-bool operator==(const Poly64& a, const Poly64& b)
+bool operator==(const Polynom& a, const Polynom& b)
 {
     if (a.len_ != b.len_)
     {
         return false;
     }
 
-    Poly64::ConstIterator ia(a.head_), ib(b.head_);
+    Polynom::ConstIterator ia(a.head_), ib(b.head_);
     while (ia && ib)
     {
         if (*ia != *ib)
@@ -565,7 +565,7 @@ bool operator==(const Poly64& a, const Poly64& b)
     return !ia && !ib;
 }
 
-void Poly64::assertValid(const char* fileName, int fileLine) const
+void Polynom::assertValid(const char* fileName, int fileLine) const
 {
     if (head_)
     {

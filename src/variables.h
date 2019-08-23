@@ -1,13 +1,13 @@
 #pragma once
 
-#include "iutil.h"
+#include "util.h"
 
 #include <cstring>
 #include <iostream>
 #include <vector>
 
 
-class IVariables
+class Variables
 {
 public:
     using List = std::vector<const char*>;

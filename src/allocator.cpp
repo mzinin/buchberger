@@ -1,14 +1,14 @@
-#include "iallocator.h"
+#include "allocator.h"
 
 
-IAllocator::IAllocator(const size_t n)
+Allocator::Allocator(const size_t n)
     : tSize_((n + sizeof(void*) - 1) / sizeof(void*))
     , pageSize_(MEMORY_PAGE_SIZE / (sizeof(void*) * (n + sizeof(void*) - 1) / sizeof(void*)))
     , free_(nullptr)
 {
 }
 
-void IAllocator::getMem()
+void Allocator::getMem()
 {
     ++maxMemory_;
     void** beg = reinterpret_cast<void**>(malloc(MEMORY_PAGE_SIZE));
@@ -28,4 +28,4 @@ void IAllocator::getMem()
     } while (beg < end);
 }
 
-int IAllocator::maxMemory_ = 0;
+int Allocator::maxMemory_ = 0;

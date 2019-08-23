@@ -1,4 +1,4 @@
-#include "igroebner64.h"
+#include "groebner.h"
 #include "timer.h"
 
 #include <iostream>
@@ -21,7 +21,7 @@ namespace
         return (a->i < b->i) ? 0 : 1;
     }
 
-    Poly64* findR(const Poly64& p, const std::vector<Poly64*>& qSet)
+    Polynom* findR(const Polynom& p, const std::vector<Polynom*>& qSet)
     {
         if (p.isZero())
         {
@@ -43,18 +43,18 @@ namespace
         return nullptr;
     }
 
-    Poly64* reduce(const Poly64& p, const std::vector<Poly64*>& qSet)
+    Polynom* reduce(const Polynom& p, const std::vector<Polynom*>& qSet)
     {
-        Poly64* r = new Poly64(p);
+        Polynom* r = new Polynom(p);
         if (qSet.empty())
         {
             return r;
         }
 
-        Poly64* q = new Poly64();
+        Polynom* q = new Polynom();
         while (!r->isZero())
         {
-            Poly64* red = findR(*r, qSet);
+            Polynom* red = findR(*r, qSet);
             while (red)
             {
                 r->headReduction(*red);
@@ -72,9 +72,9 @@ namespace
     }
 }
 
-IAllocator Pair::allocator(sizeof(Pair));
+Allocator Pair::allocator(sizeof(Pair));
 
-IGBasis64::IGBasis64(const std::vector<Poly64*>& set)
+GroebnerBasis::GroebnerBasis(const std::vector<Polynom*>& set)
 {
     auto i1 = set.begin();
     auto i2 = basis_.begin();
@@ -84,10 +84,10 @@ IGBasis64::IGBasis64(const std::vector<Poly64*>& set)
 
     while (i1 != set.end())
     {
-        i2 = basis_.insert(i2, new Poly64(**i1));
+        i2 = basis_.insert(i2, new Polynom(**i1));
         for (i = 0; i < dim_; ++i)
         {
-            i2 = basis_.insert(i2, new Poly64(**i1));
+            i2 = basis_.insert(i2, new Polynom(**i1));
             (**i2).mult(i);
         }
         ++i1;
@@ -98,28 +98,28 @@ IGBasis64::IGBasis64(const std::vector<Poly64*>& set)
     reduceSet(0);
 }
 
-Poly64* IGBasis64::sPoly(int i, int j)
+Polynom* GroebnerBasis::sPoly(int i, int j)
 {
     if (i < dim_)
     {
-        Poly64* r1 = new Poly64(*(*this)[j - dim_]);
+        Polynom* r1 = new Polynom(*(*this)[j - dim_]);
         r1->mult(i);
         return r1;
     }
 
-    Monom64* w = new Monom64();
-    Poly64* f = (*this)[i - dim_];
-    Poly64* g = (*this)[j - dim_];
+    Monom* w = new Monom();
+    Polynom* f = (*this)[i - dim_];
+    Polynom* g = (*this)[j - dim_];
     w->gcd(f->lm(), g->lm());
 
-    Monom64* q1 = new Monom64();
-    Monom64* q2 = new Monom64();
+    Monom* q1 = new Monom();
+    Monom* q2 = new Monom();
     q1->divide(f->lm(), *w);
     q2->divide(g->lm(), *w);
     delete w;
 
-    Poly64* r1 = new Poly64(*f),
-    *r2 = new Poly64(*g);
+    Polynom* r1 = new Polynom(*f),
+    *r2 = new Polynom(*g);
     r1->mult(*q2); delete q2;
     r2->mult(*q1); delete q1;
     r1->add(*r2); delete r2;
@@ -127,12 +127,12 @@ Poly64* IGBasis64::sPoly(int i, int j)
     return r1;
 }
 
-void IGBasis64::reduceSet(int i)
+void GroebnerBasis::reduceSet(int i)
 {
-    std::vector<Poly64*> R, P, Q;
-    std::vector<Poly64*>::iterator ir(R.begin()), ip(P.begin()), iq(Q.begin());
-    std::vector<Poly64*>::const_iterator j(basis_.begin()), qEnd, rEnd, pEnd;
-    Poly64 *h, *h1;
+    std::vector<Polynom*> R, P, Q;
+    std::vector<Polynom*>::iterator ir(R.begin()), ip(P.begin()), iq(Q.begin());
+    std::vector<Polynom*>::const_iterator j(basis_.begin()), qEnd, rEnd, pEnd;
+    Polynom *h, *h1;
 
     if (i)
     {
@@ -247,9 +247,9 @@ void IGBasis64::reduceSet(int i)
     basis_ = R;
 }
 
-bool IGBasis64::criterion1(int i, int j, unsigned long& lcm, int& degree)
+bool GroebnerBasis::criterion1(int i, int j, unsigned long& lcm, int& degree)
 {
-    Poly64 *f,*g;
+    Polynom *f,*g;
     if (i < dim_)
     {
         if (j < dim_)
@@ -280,7 +280,7 @@ bool IGBasis64::criterion1(int i, int j, unsigned long& lcm, int& degree)
         }
         else
         {
-            Monom64* lcmMonom = new Monom64();
+            Monom* lcmMonom = new Monom();
             lcmMonom->lcm(f->lm(), g->lm());
             lcm = lcmMonom->rank();
             degree = lcmMonom->degree();
@@ -290,7 +290,7 @@ bool IGBasis64::criterion1(int i, int j, unsigned long& lcm, int& degree)
     }
 }
 
-bool IGBasis64::criterion2(int i, int j)
+bool GroebnerBasis::criterion2(int i, int j)
 {
     auto* ilist = &allPairs_[i];
     auto* jlist = &allPairs_[j];
@@ -299,8 +299,8 @@ bool IGBasis64::criterion2(int i, int j)
     auto jit((*jlist).end());
 
     size_t len = length();
-    Poly64* tmp;
-    auto lcmMonom = std::make_unique<Monom64>((*this)[j-dim_]->lm());
+    Polynom* tmp;
+    auto lcmMonom = std::make_unique<Monom>((*this)[j-dim_]->lm());
 
     if (i>=dim_)
     {
@@ -324,11 +324,11 @@ bool IGBasis64::criterion2(int i, int j)
     return true;
 }
 
-void IGBasis64::pushPoly(Poly64* p)
+void GroebnerBasis::pushPoly(Polynom* p)
 {
     int k = length() + dim_, degree;
     unsigned long lcm;
-    std::vector<Poly64*>::iterator basisIt = basis_.begin();
+    std::vector<Polynom*>::iterator basisIt = basis_.begin();
 
     basisIt = basis_.insert(basisIt, p);
 
@@ -374,11 +374,11 @@ void IGBasis64::pushPoly(Poly64* p)
     }
 }
 
-void IGBasis64::calculateGB()
+void GroebnerBasis::calculateGB()
 {
     int k = length() + dim_, inum, jnum, degree;
     unsigned long lcm;
-    Poly64 *h, *spoly;
+    Polynom *h, *spoly;
 
     for (inum = 0; inum < k; ++inum)
     {
@@ -430,7 +430,7 @@ void IGBasis64::calculateGB()
     }
 }
 
-std::ostream& operator<<(std::ostream& out, IGBasis64& gBasis)
+std::ostream& operator<<(std::ostream& out, GroebnerBasis& gBasis)
 {
     for (size_t i = 0; i < gBasis.length(); ++i)
     {

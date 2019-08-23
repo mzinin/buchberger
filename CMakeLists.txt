@@ -30,25 +30,25 @@ CONFIGURE_FILE (
 )
 
 SET (HEADERS
-    "src/iallocator.h"
-    "src/igroebner64.h"
-    "src/init64.h"
-    "src/iutil.h"
-    "src/ivariables.h"
-    "src/monom64.h"
-    "src/poly64.h"
+    "src/allocator.h"
+    "src/groebner.h"
+    "src/init.h"
+    "src/monom.h"
+    "src/polynom.h"
     "src/timer.h"
+    "src/util.h"
+    "src/variables.h"
     "src/version.h"
 )
 
 SET (SOURCES
-    "src/iallocator.cpp"
-    "src/igroebner64.cpp"
-    "src/ivariables.cpp"
+    "src/allocator.cpp"
+    "src/groebner.cpp"
     "src/main.cpp"
-    "src/monom64.cpp"
-    "src/poly64.cpp"
+    "src/monom.cpp"
+    "src/polynom.cpp"
     "src/timer.cpp"
+    "src/variables.cpp"
     "src/version.cpp"
 )
 

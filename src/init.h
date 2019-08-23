@@ -1,13 +1,13 @@
-#include "igroebner64.h"
-#include "monom64.h"
-#include "poly64.h"
+#include "groebner.h"
+#include "monom.h"
+#include "polynom.h"
 #include "timer.h"
 
 #include <fstream>
 #include <iostream>
 
 
-void init64(const char* filename)
+void init(const char* filename)
 {
     std::ifstream fin(filename);
     Timer timer;
@@ -20,7 +20,7 @@ void init64(const char* filename)
         fin >> c;
         if (c == ',' || c == ';')
         {
-            Monom64::independ->add(s);
+            Monom::independ->add(s);
             s[0] = '\0';
             i = 0;
         }
@@ -33,11 +33,11 @@ void init64(const char* filename)
     }
     // done reading variables
 
-    Monom64::init();
+    Monom::init();
 
-    Poly64 poly;
-    std::vector<Poly64*> pl, answer;
-    std::vector<Poly64*>::iterator it(pl.begin()), anIt(answer.begin());
+    Polynom poly;
+    std::vector<Polynom*> pl, answer;
+    std::vector<Polynom*>::iterator it(pl.begin()), anIt(answer.begin());
 
     i = 0;
     s[0] = '\0';
@@ -71,7 +71,7 @@ void init64(const char* filename)
     while (!tmpIn.eof())
     {
         tmpIn >> poly;
-        it=pl.insert(it, new Poly64(poly));
+        it=pl.insert(it, new Polynom(poly));
     }
     tmpIn.close();
     // done reading initial basis
@@ -105,14 +105,14 @@ void init64(const char* filename)
     while (!tmpIn2.eof())
     {
         tmpIn2 >> poly;
-        anIt = answer.insert(anIt, new Poly64(poly));
+        anIt = answer.insert(anIt, new Polynom(poly));
     }
     tmpIn2.close();
     // done reading correct answer
     fin.close();
 
     timer.start();
-    IGBasis64 bg(pl);
+    GroebnerBasis bg(pl);
     timer.stop();
     std::cout << timer << std::endl;
 

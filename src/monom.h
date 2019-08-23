@@ -1,24 +1,24 @@
 #pragma once
 
-#include "iallocator.h"
-#include "ivariables.h"
+#include "allocator.h"
+#include "variables.h"
 
 #include <cstdint>
 #include <cstring>
 #include <iostream>
 
 
-class Monom64
+class Monom
 {
 public:
-    Monom64* next;
-    static IVariables* independ;
+    Monom* next;
+    static Variables* independ;
 
 public:
     static void init();
 
-    Monom64() = default;
-    Monom64(const Monom64& a)
+    Monom() = default;
+    Monom(const Monom& a)
         : totalDegree_(a.totalDegree_)
         , exponent_(a.exponent_)
     {
@@ -48,8 +48,8 @@ public:
     unsigned degree() const;
     uint64_t rank() const;
 
-    void set(const Monom64& a);
-    void operator=(const Monom64& a)
+    void set(const Monom& a);
+    void operator=(const Monom& a)
     {
         set(a);
     }
@@ -58,30 +58,30 @@ public:
     void prolong(int var);
     void prolong(int var, unsigned deg);
     void div(int var);
-    void div(const Monom64& a);
+    void div(const Monom& a);
 
-    void mult(const Monom64& a);
-    void mult1(const Monom64& a);
-    void mult(const Monom64& a, const Monom64& b);
+    void mult(const Monom& a);
+    void mult1(const Monom& a);
+    void mult(const Monom& a, const Monom& b);
 
-    bool divisibility(const Monom64& a) const;
-    bool divisibilityTrue(const Monom64& a) const;
-    void divide(const Monom64& a, const Monom64& b);
-    void divide1(const Monom64& a, const Monom64& b);
+    bool divisibility(const Monom& a) const;
+    bool divisibilityTrue(const Monom& a) const;
+    void divide(const Monom& a, const Monom& b);
+    void divide1(const Monom& a, const Monom& b);
 
-    uint64_t gcd(const Monom64& a) const;
-    uint64_t lcm(const Monom64& a) const;
-    void gcd(const Monom64& a, const Monom64& b);
-    void lcm(const Monom64& a, const Monom64& b);
+    uint64_t gcd(const Monom& a) const;
+    uint64_t lcm(const Monom& a) const;
+    void gcd(const Monom& a, const Monom& b);
+    void lcm(const Monom& a, const Monom& b);
 
-    bool equality(const Monom64& a, int var, unsigned degree = 1) const;
-    int compare(const Monom64& a) const;
-    int compare(const Monom64& a, const Monom64& b) const;
+    bool equality(const Monom& a, int var, unsigned degree = 1) const;
+    int compare(const Monom& a) const;
+    int compare(const Monom& a, const Monom& b) const;
 
-    friend std::istream& operator>>(std::istream& in, Monom64& a);
-    friend std::ostream& operator<<(std::ostream& out, const Monom64& a);
-    friend bool operator==(const Monom64 &a, const Monom64 &b);
-    friend bool operator!=(const Monom64 &a, const Monom64 &b)
+    friend std::istream& operator>>(std::istream& in, Monom& a);
+    friend std::ostream& operator<<(std::ostream& out, const Monom& a);
+    friend bool operator==(const Monom &a, const Monom &b);
+    friend bool operator!=(const Monom &a, const Monom &b)
     {
         return !(a == b);
     };
@@ -91,38 +91,38 @@ private:
     uint64_t exponent_;
 
     static size_t dimIndepend_;
-    static IAllocator allocator_;
+    static Allocator allocator_;
     static uint64_t zero_[64];
     static uint64_t one_[64];
     static uint64_t degrees_[256];
 };
 
-inline void Monom64::set(const Monom64& a)
+inline void Monom::set(const Monom& a)
 {
-    memcpy(this, &a, sizeof(Monom64));
+    memcpy(this, &a, sizeof(Monom));
 }
 
-inline unsigned Monom64::deg(int var) const
+inline unsigned Monom::deg(int var) const
 {
     return (exponent_ & one_[var]) ? 1 : 0;
 }
 
-inline unsigned Monom64::degree() const
+inline unsigned Monom::degree() const
 {
     return totalDegree_;
 }
 
-inline uint64_t Monom64::rank() const {
+inline uint64_t Monom::rank() const {
     return exponent_;
 }
 
-inline void Monom64::setZero()
+inline void Monom::setZero()
 {
     totalDegree_ = 0;
     exponent_ = 0;
 }
 
-inline void Monom64::prolong(int var)
+inline void Monom::prolong(int var)
 {
     if (!(exponent_ & one_[var]))
     {
@@ -131,7 +131,7 @@ inline void Monom64::prolong(int var)
     };
 }
 
-inline void Monom64::prolong(int var, unsigned deg)
+inline void Monom::prolong(int var, unsigned deg)
 {
     if (deg > 0)
     {
@@ -139,7 +139,7 @@ inline void Monom64::prolong(int var, unsigned deg)
     }
 }
 
-inline void Monom64::div(int var)
+inline void Monom::div(int var)
 {
     if (exponent_ & one_[var])
     {
@@ -152,7 +152,7 @@ inline void Monom64::div(int var)
     }
 }
 
-inline void Monom64::div(const Monom64& a)
+inline void Monom::div(const Monom& a)
 {
     exponent_ ^= a.exponent_;
     uint8_t* c = reinterpret_cast<uint8_t*>(&exponent_);
@@ -164,7 +164,7 @@ inline void Monom64::div(const Monom64& a)
     }
 }
 
-inline void Monom64::mult(const Monom64& a)
+inline void Monom::mult(const Monom& a)
 {
     exponent_ |= a.exponent_;
     uint8_t* c = reinterpret_cast<uint8_t*>(&exponent_);
@@ -176,12 +176,12 @@ inline void Monom64::mult(const Monom64& a)
     }
 }
 
-inline void Monom64::mult1(const Monom64& a)
+inline void Monom::mult1(const Monom& a)
 {
     exponent_ |= a.exponent_;
 }
 
-inline void Monom64::mult(const Monom64& a, const Monom64& b)
+inline void Monom::mult(const Monom& a, const Monom& b)
 {
     exponent_ = a.exponent_ | b.exponent_;
     uint8_t* c = reinterpret_cast<uint8_t*>(&exponent_);
@@ -193,14 +193,14 @@ inline void Monom64::mult(const Monom64& a, const Monom64& b)
     }
 }
 
-inline bool Monom64::divisibility(const Monom64& a) const
+inline bool Monom::divisibility(const Monom& a) const
 {
     uint64_t d = exponent_ ^ a.exponent_;
     d &= a.exponent_;
     return d == 0;
 }
 
-inline bool Monom64::divisibilityTrue(const Monom64& a) const
+inline bool Monom::divisibilityTrue(const Monom& a) const
 {
     uint64_t d = exponent_ ^ a.exponent_;
     if (d == 0)
@@ -212,18 +212,18 @@ inline bool Monom64::divisibilityTrue(const Monom64& a) const
     return d == 0;
 }
 
-inline void Monom64::divide(const Monom64& a, const Monom64& b)
+inline void Monom::divide(const Monom& a, const Monom& b)
 {
     totalDegree_ = a.totalDegree_ - b.totalDegree_;
     exponent_ = a.exponent_ ^ b.exponent_;
 }
 
-inline void Monom64::divide1(const Monom64& a, const Monom64& b)
+inline void Monom::divide1(const Monom& a, const Monom& b)
 {
     exponent_ = a.exponent_ ^ b.exponent_;
 }
 
-inline uint64_t Monom64::gcd(const Monom64& a) const
+inline uint64_t Monom::gcd(const Monom& a) const
 {
     uint64_t d = exponent_ & a.exponent_;
     uint8_t* c = reinterpret_cast<uint8_t*>(&d);
@@ -236,7 +236,7 @@ inline uint64_t Monom64::gcd(const Monom64& a) const
     return r;
 }
 
-inline uint64_t Monom64::lcm(const Monom64& a) const
+inline uint64_t Monom::lcm(const Monom& a) const
 {
     uint64_t d = exponent_ | a.exponent_;
     uint8_t* c = reinterpret_cast<uint8_t*>(&d);
@@ -249,7 +249,7 @@ inline uint64_t Monom64::lcm(const Monom64& a) const
     return r;
 }
 
-inline void Monom64::gcd(const Monom64& a, const Monom64& b)
+inline void Monom::gcd(const Monom& a, const Monom& b)
 {
     exponent_ = a.exponent_ & b.exponent_;
     uint8_t* c = reinterpret_cast<uint8_t*>(&exponent_);
@@ -261,7 +261,7 @@ inline void Monom64::gcd(const Monom64& a, const Monom64& b)
     }
 }
 
-inline void Monom64::lcm(const Monom64& a, const Monom64& b)
+inline void Monom::lcm(const Monom& a, const Monom& b)
 {
     exponent_ = a.exponent_ | b.exponent_;
     uint8_t* c = reinterpret_cast<uint8_t*>(&exponent_);
@@ -273,7 +273,7 @@ inline void Monom64::lcm(const Monom64& a, const Monom64& b)
     }
 }
 
-inline bool Monom64::equality(const Monom64& a, int var, unsigned) const
+inline bool Monom::equality(const Monom& a, int var, unsigned) const
 {
     uint64_t d = 1;
     d = d << var;
@@ -281,7 +281,7 @@ inline bool Monom64::equality(const Monom64& a, int var, unsigned) const
     return exponent_ == d;
 }
 
-inline int Monom64::compare(const Monom64& a) const
+inline int Monom::compare(const Monom& a) const
 {
     if (totalDegree_ < a.totalDegree_)
     {
@@ -304,7 +304,7 @@ inline int Monom64::compare(const Monom64& a) const
     return 0;
 }
 
-inline bool operator==(const Monom64& a, const Monom64& b)
+inline bool operator==(const Monom& a, const Monom& b)
 {
     return a.exponent_ == b.exponent_;
 }
