@@ -1,66 +1,84 @@
-#include <vector>
-#include <algorithm>
+#pragma once
+
 #include "poly64.h"
 
-struct Pair {
-  short int i, j, degree;
-  unsigned long lcm;
-  static IAllocator sAllocator;
+#include <algorithm>
+#include <vector>
 
-  Pair() {}
-  Pair(int i_new, int j_new, unsigned lcm_new, int deg_new){
-    i = i_new; j = j_new; lcm = lcm_new; degree = deg_new;
-  }
-  ~Pair() {}
 
-  void* operator new(size_t) { return sAllocator.allocate(); }
-  void operator delete(void *ptr) { sAllocator.deallocate(ptr); }
+struct Pair
+{
+    uint16_t i;
+    uint16_t j;
+    uint64_t lcm;
+    uint16_t degree;
+
+    static IAllocator allocator;
+
+    Pair(uint16_t iNew, uint16_t jNew, uint64_t lcmNew, uint16_t degreeNew)
+        : i(iNew)
+        , j(jNew)
+        , lcm(lcmNew)
+        , degree(degreeNew)
+    {
+    }
+
+    void* operator new(size_t)
+    {
+        return allocator.allocate();
+    }
+
+    void operator delete(void* ptr)
+    {
+        allocator.deallocate(ptr);
+    }
 };
 
-Poly64* findR(Poly64& p, vector<Poly64*> &Q);
-Poly64* Reduce(Poly64& p, vector<Poly64*> &Q);
 
-class IGBasis64{
-protected:
-  vector<Poly64*> basis;
-  int Dim;
-  vector< vector<bool> > all_pairs;
-  vector<Pair*> ref_to_pairs;
-
-  bool criterion1(int i, int j, unsigned long &lcm, int &degree);
-  bool criterion2(int i, int j);
-  void push_poly(Poly64* p, int flag);
-  void CalculateGB();
-
+class IGBasis64
+{
 public:
-  IGBasis64(): basis() {};
-  IGBasis64(vector<Poly64*> &set);
-  ~IGBasis64() {}
+    IGBasis64() = default;
+    IGBasis64(const std::vector<Poly64*>& set);
 
-  Poly64* operator[](int num);
-  Poly64* S(int i,int j);
-  void SelectPair(int& i, int& j);
-  int length();
-  void ReduceSet(int i);
+    Poly64* operator[](size_t num);
+    Poly64* sPoly(int i, int j);
 
-  friend std::ostream& operator<<(std::ostream& out, IGBasis64& GBasis);
+    void selectPair(int& i, int& j);
+    size_t length();
+    void reduceSet(int i);
+
+    friend std::ostream& operator<<(std::ostream& out, IGBasis64& gBasis);
+
+private:
+    bool criterion1(int i, int j, unsigned long& lcm, int& degree);
+    bool criterion2(int i, int j);
+    void pushPoly(Poly64* p);
+    void calculateGB();
+
+private:
+    std::vector<Poly64*> basis_;
+    size_t dim_ = 0;
+    std::vector<std::vector<bool>> allPairs_;
+    std::vector<Pair*> refToPairs_;
 };
 
-inline Poly64* IGBasis64::operator[](int num){
-  vector<Poly64*>::const_iterator it(basis.begin());
-  it+=length()-1-num;
-  return *it;
+inline Poly64* IGBasis64::operator[](size_t num)
+{
+    auto it(basis_.begin());
+    it += length() - 1 - num;
+    return *it;
 }
 
-inline void IGBasis64::SelectPair(int& i, int& j){
-  vector<Pair*>::iterator p_iterator = ref_to_pairs.end();
-  p_iterator--;
-  i = (*p_iterator)->i;
-  j = (*p_iterator)->j;
-  ref_to_pairs.pop_back();
-  return;
+inline void IGBasis64::selectPair(int& i, int& j)
+{
+    i = refToPairs_.back()->i;
+    j = refToPairs_.back()->j;
+    refToPairs_.pop_back();
+    return;
 }
 
-inline int IGBasis64::length(){
-  return basis.size();
+inline size_t IGBasis64::length()
+{
+    return basis_.size();
 }

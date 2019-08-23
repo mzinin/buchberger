@@ -1,247 +1,310 @@
-#ifndef MONOM64_H
-#define MONOM64_H
+#pragma once
 
-#include <iostream>
-#include <cstring>
-#include "ivariables.h"
 #include "iallocator.h"
+#include "ivariables.h"
 
-using namespace std;
+#include <cstdint>
+#include <cstring>
+#include <iostream>
 
-class Monom64 {
-protected:
-  unsigned long long mTotalDegree;
-  unsigned long long exp;
 
-  static int mDimIndepend;
-  static IAllocator sAllocator;
-  static unsigned long long Zero[64], One[64];
-  static unsigned long long degrees[256];
+class Monom64
+{
+public:
+    Monom64* next;
+    static IVariables* independ;
 
 public:
-  Monom64* Next;
-  static IVariables* mIndepend;
-  static void Init();
+    static void init();
 
-  Monom64() { memset(this, 0, sizeof(Monom64)); }
-  Monom64(const Monom64& a) { memcpy(this, &a, sizeof(Monom64)); }
-  ~Monom64() { Next = NULL; };
-  void* operator new(size_t) { return sAllocator.allocate(); }
-  void operator delete(void *ptr) { sAllocator.deallocate(ptr); }
+    Monom64() = default;
+    Monom64(const Monom64& a)
+        : totalDegree_(a.totalDegree_)
+        , exponent_(a.exponent_)
+    {
+    }
 
-  int dimIndepend() const { return mDimIndepend; }
-  unsigned deg(int var) const;
-  unsigned operator[](int var) const { return deg(var); }
-  unsigned degree() const;
-  unsigned long long rank() const;
+    void* operator new(size_t)
+    {
+        return allocator_.allocate();
+    }
 
-  void set(const Monom64& a);
-  void operator=(const Monom64& a) { set(a); }
+    void operator delete(void* ptr)
+    {
+        allocator_.deallocate(ptr);
+    }
 
-  void setZero();
-  void prolong(int var);
-  void prolong(int var, unsigned deg);
-  void div(int var);
-  void div(const Monom64& a);
+    size_t dimIndepend() const
+    {
+        return dimIndepend_;
+    }
 
-  void mult(const Monom64& a);
-  void mult1(const Monom64& a);
-  void mult(const Monom64& a, const Monom64& b);
+    unsigned deg(int var) const;
+    unsigned operator[](int var) const
+    {
+        return deg(var);
+    }
 
-  bool divisibility(const Monom64& a) const;
-  bool divisibilityTrue(const Monom64& a) const;
-  void divide(const Monom64& a, const Monom64& b);
-  void divide1(const Monom64& a, const Monom64& b);
+    unsigned degree() const;
+    uint64_t rank() const;
 
-  unsigned gcd(const Monom64& a) const;
-  unsigned lcm(const Monom64& a) const;
-  void gcd(const Monom64& a, const Monom64& b);
-  void lcm(const Monom64& a, const Monom64& b);
+    void set(const Monom64& a);
+    void operator=(const Monom64& a)
+    {
+        set(a);
+    }
 
-  bool equality(const Monom64& a, int var, unsigned degree=1) const;
-  int compare(const Monom64& a) const;
-  int compare(const Monom64& a, const Monom64& b) const;
+    void setZero();
+    void prolong(int var);
+    void prolong(int var, unsigned deg);
+    void div(int var);
+    void div(const Monom64& a);
 
-  friend std::istream& operator>>(std::istream& in, Monom64& a);
-  friend std::ostream& operator<<(std::ostream& out, const Monom64& a);
-  friend bool operator==(const Monom64 &a, const Monom64 &b);
-  friend bool operator!=(const Monom64 &a, const Monom64 &b) { return !(a==b); };
+    void mult(const Monom64& a);
+    void mult1(const Monom64& a);
+    void mult(const Monom64& a, const Monom64& b);
+
+    bool divisibility(const Monom64& a) const;
+    bool divisibilityTrue(const Monom64& a) const;
+    void divide(const Monom64& a, const Monom64& b);
+    void divide1(const Monom64& a, const Monom64& b);
+
+    uint64_t gcd(const Monom64& a) const;
+    uint64_t lcm(const Monom64& a) const;
+    void gcd(const Monom64& a, const Monom64& b);
+    void lcm(const Monom64& a, const Monom64& b);
+
+    bool equality(const Monom64& a, int var, unsigned degree = 1) const;
+    int compare(const Monom64& a) const;
+    int compare(const Monom64& a, const Monom64& b) const;
+
+    friend std::istream& operator>>(std::istream& in, Monom64& a);
+    friend std::ostream& operator<<(std::ostream& out, const Monom64& a);
+    friend bool operator==(const Monom64 &a, const Monom64 &b);
+    friend bool operator!=(const Monom64 &a, const Monom64 &b)
+    {
+        return !(a == b);
+    };
+
+private:
+    uint64_t totalDegree_;
+    uint64_t exponent_;
+
+    static size_t dimIndepend_;
+    static IAllocator allocator_;
+    static uint64_t zero_[64];
+    static uint64_t one_[64];
+    static uint64_t degrees_[256];
 };
 
-inline void Monom64::set(const Monom64& a) {
-  memcpy(this, &a, sizeof(Monom64));
+inline void Monom64::set(const Monom64& a)
+{
+    memcpy(this, &a, sizeof(Monom64));
 }
 
-inline unsigned Monom64::deg(int var) const {
-  if (exp & One[var]) return 1;
-  return 0;
+inline unsigned Monom64::deg(int var) const
+{
+    return (exponent_ & one_[var]) ? 1 : 0;
 }
 
-inline unsigned Monom64::degree() const {
-  return mTotalDegree;
+inline unsigned Monom64::degree() const
+{
+    return totalDegree_;
 }
 
-inline unsigned long long Monom64::rank() const {
-    return exp;
+inline uint64_t Monom64::rank() const {
+    return exponent_;
 }
 
-inline void Monom64::setZero() {
-  mTotalDegree = 0;
-  exp = 0;
-  //memset(this, 0, 16);
+inline void Monom64::setZero()
+{
+    totalDegree_ = 0;
+    exponent_ = 0;
 }
 
-inline void Monom64::prolong(int var) {
-  if ( !(exp & One[var]) ) {
-    exp = exp | One[var];
-    mTotalDegree++;
-  };
+inline void Monom64::prolong(int var)
+{
+    if (!(exponent_ & one_[var]))
+    {
+        exponent_ |= one_[var];
+        ++totalDegree_;
+    };
 }
 
-inline void Monom64::prolong(int var, unsigned deg) {
-  if (deg>0) prolong(var);
+inline void Monom64::prolong(int var, unsigned deg)
+{
+    if (deg > 0)
+    {
+        prolong(var);
+    }
 }
 
-inline void Monom64::div(int var) {
-  if ( exp & One[var] ){
-    exp = exp & Zero[var];
-    mTotalDegree--;
-  }
-  else
-   IERROR("Monom can't be divided by variable");
-}
-
-inline void Monom64::div(const Monom64& a) {
-  exp ^= a.exp;
-  unsigned char *c = (unsigned char*)&exp;
-  mTotalDegree = degrees[*c];
-  for (int i=0; i<7; i++){
-    c++;
-    mTotalDegree += degrees[*c];
-  }
-}
-
-inline void Monom64::mult(const Monom64& a) {
-  exp |= a.exp;
-  unsigned char *c = (unsigned char*)&exp;
-  mTotalDegree = degrees[*c];
-  for (int i=0; i<7; i++){
-    c++;
-    mTotalDegree += degrees[*c];
-  }
-}
-
-inline void Monom64::mult1(const Monom64& a) {
-  exp|=a.exp;
-}
-
-inline void Monom64::mult(const Monom64& a, const Monom64& b) {
-  exp = a.exp | b.exp;
-  unsigned char *c = (unsigned char*)&exp;
-  mTotalDegree = degrees[*c];
-  for (int i=0; i<7; i++){
-    c++;
-    mTotalDegree += degrees[*c];
-  }
-}
-
-inline bool Monom64::divisibility(const Monom64& a) const{
-  unsigned long long d(exp ^ a.exp);
-  d &= a.exp;
-  if(d!=0)
-    return false;
-  else
-    return true;
-}
-
-inline bool Monom64::divisibilityTrue(const Monom64& a) const {
-  unsigned long long d(exp ^ a.exp);
-  if (d==0)
-    return false;
-  else{
-    d &= a.exp;
-    if(d!=0)
-      return false;
+inline void Monom64::div(int var)
+{
+    if (exponent_ & one_[var])
+    {
+        exponent_ &= zero_[var];
+        --totalDegree_;
+    }
     else
-      return true;
-  }
+    {
+        IERROR("Monom can't be divided by variable");
+    }
 }
 
-inline void Monom64::divide(const Monom64& a, const Monom64& b) {
-  mTotalDegree = a.mTotalDegree - b.mTotalDegree;
-  exp = a.exp ^ b.exp;
+inline void Monom64::div(const Monom64& a)
+{
+    exponent_ ^= a.exponent_;
+    uint8_t* c = reinterpret_cast<uint8_t*>(&exponent_);
+    totalDegree_ = degrees_[*c];
+    for (int i = 0; i < 7; ++i)
+    {
+        ++c;
+        totalDegree_ += degrees_[*c];
+    }
 }
 
-inline void Monom64::divide1(const Monom64& a, const Monom64& b) {
-  exp = a.exp ^ b.exp;
+inline void Monom64::mult(const Monom64& a)
+{
+    exponent_ |= a.exponent_;
+    uint8_t* c = reinterpret_cast<uint8_t*>(&exponent_);
+    totalDegree_ = degrees_[*c];
+    for (int i = 0; i < 7; ++i)
+    {
+        ++c;
+        totalDegree_ += degrees_[*c];
+    }
 }
 
-inline unsigned Monom64::gcd(const Monom64& a) const {
-  unsigned long long d(exp & a.exp);
-  unsigned char *c = (unsigned char*)&d;
-  unsigned r = degrees[*c];
-  for (int i=0; i<7; i++){
-    c++;
-    r += degrees[*c];
-  }
-  return r;
+inline void Monom64::mult1(const Monom64& a)
+{
+    exponent_ |= a.exponent_;
 }
 
-inline unsigned Monom64::lcm(const Monom64& a) const {
-  unsigned long long d(exp | a.exp);
-  unsigned char *c = (unsigned char*)&d;
-  unsigned r = degrees[*c];
-  for (int i=0; i<7; i++){
-    c++;
-    r += degrees[*c];
-  }
-  return r;
+inline void Monom64::mult(const Monom64& a, const Monom64& b)
+{
+    exponent_ = a.exponent_ | b.exponent_;
+    uint8_t* c = reinterpret_cast<uint8_t*>(&exponent_);
+    totalDegree_ = degrees_[*c];
+    for (int i = 0; i < 7; ++i)
+    {
+        ++c;
+        totalDegree_ += degrees_[*c];
+    }
 }
 
-inline void Monom64::gcd(const Monom64& a, const Monom64& b) {
-  exp = a.exp & b.exp;
-  unsigned char *c = (unsigned char*)&exp;
-  mTotalDegree = degrees[*c];
-  for (int i=0; i<7; i++){
-    c++;
-    mTotalDegree += degrees[*c];
-  }
+inline bool Monom64::divisibility(const Monom64& a) const
+{
+    uint64_t d = exponent_ ^ a.exponent_;
+    d &= a.exponent_;
+    return d == 0;
 }
 
-inline void Monom64::lcm(const Monom64& a, const Monom64& b) {
-  exp = a.exp | b.exp;
-  unsigned char *c = (unsigned char*)&exp;
-  mTotalDegree = degrees[*c];
-  for (int i=0; i<7; i++){
-    c++;
-    mTotalDegree += degrees[*c];
-  }
+inline bool Monom64::divisibilityTrue(const Monom64& a) const
+{
+    uint64_t d = exponent_ ^ a.exponent_;
+    if (d == 0)
+    {
+        return false;
+    }
+
+    d &= a.exponent_;
+    return d == 0;
 }
 
-inline bool Monom64::equality(const Monom64& a, int var, unsigned degree) const {
-  unsigned long long d(1);
-  d = d<<var;
-  d |= a.exp;
-  return exp==d;
+inline void Monom64::divide(const Monom64& a, const Monom64& b)
+{
+    totalDegree_ = a.totalDegree_ - b.totalDegree_;
+    exponent_ = a.exponent_ ^ b.exponent_;
 }
 
-inline int Monom64::compare(const Monom64& a) const {
-  if (mTotalDegree < a.mTotalDegree)
-    return -1;
-  else if (mTotalDegree > a.mTotalDegree)
-    return 1;
-  else {
-    if (exp < a.exp)
-      return 1;
-    else if (exp > a.exp)
-      return -1;
-    else
-      return 0;
-  }
+inline void Monom64::divide1(const Monom64& a, const Monom64& b)
+{
+    exponent_ = a.exponent_ ^ b.exponent_;
 }
 
-inline bool operator==(const Monom64 &a, const Monom64 &b){
-  return a.exp==b.exp;
+inline uint64_t Monom64::gcd(const Monom64& a) const
+{
+    uint64_t d = exponent_ & a.exponent_;
+    uint8_t* c = reinterpret_cast<uint8_t*>(&d);
+    uint64_t r = degrees_[*c];
+    for (int i = 0; i < 7; ++i)
+    {
+        ++c;
+        r += degrees_[*c];
+    }
+    return r;
 }
 
-#endif // MONOM64_H
+inline uint64_t Monom64::lcm(const Monom64& a) const
+{
+    uint64_t d = exponent_ | a.exponent_;
+    uint8_t* c = reinterpret_cast<uint8_t*>(&d);
+    uint64_t r = degrees_[*c];
+    for (int i = 0; i < 7; ++i)
+    {
+        ++c;
+        r += degrees_[*c];
+    }
+    return r;
+}
+
+inline void Monom64::gcd(const Monom64& a, const Monom64& b)
+{
+    exponent_ = a.exponent_ & b.exponent_;
+    uint8_t* c = reinterpret_cast<uint8_t*>(&exponent_);
+    totalDegree_ = degrees_[*c];
+    for (int i = 0; i < 7; ++i)
+    {
+        ++c;
+        totalDegree_ += degrees_[*c];
+    }
+}
+
+inline void Monom64::lcm(const Monom64& a, const Monom64& b)
+{
+    exponent_ = a.exponent_ | b.exponent_;
+    uint8_t* c = reinterpret_cast<uint8_t*>(&exponent_);
+    totalDegree_ = degrees_[*c];
+    for (int i = 0; i < 7; ++i)
+    {
+        ++c;
+        totalDegree_ += degrees_[*c];
+    }
+}
+
+inline bool Monom64::equality(const Monom64& a, int var, unsigned) const
+{
+    uint64_t d = 1;
+    d = d << var;
+    d |= a.exponent_;
+    return exponent_ == d;
+}
+
+inline int Monom64::compare(const Monom64& a) const
+{
+    if (totalDegree_ < a.totalDegree_)
+    {
+        return -1;
+    }
+    else if (totalDegree_ > a.totalDegree_)
+    {
+        return 1;
+    }
+
+    if (exponent_ < a.exponent_)
+    {
+        return 1;
+    }
+    else if (exponent_ > a.exponent_)
+    {
+        return -1;
+    }
+
+    return 0;
+}
+
+inline bool operator==(const Monom64& a, const Monom64& b)
+{
+    return a.exponent_ == b.exponent_;
+}

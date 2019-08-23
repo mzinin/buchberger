@@ -1,30 +1,33 @@
 #include "version.h"
 
-static VersionInfo Version(MAJOR_VESION, MINOR_VERSION, REVISION);
+namespace
+{
+    const VersionInfo version(MAJOR_VESION, MINOR_VERSION, REVISION);
+}
 
-VersionInfo::VersionInfo(unsigned initialMajor, unsigned initialMinor, unsigned initialRevision):
-    major(initialMajor),
-    minor(initialMinor),
-    revision(initialRevision)
+VersionInfo::VersionInfo(unsigned major, unsigned minor, unsigned revision):
+    major_(major),
+    minor_(minor),
+    revision_(revision)
 {
 }
 
-unsigned VersionInfo::GetMajor() const
+unsigned VersionInfo::major() const
 {
-  return major;
+  return major_;
 }
 
-unsigned VersionInfo::GetMinor() const
+unsigned VersionInfo::minor() const
 {
-  return minor;
+  return minor_;
 }
 
-unsigned VersionInfo::GetRevision() const
+unsigned VersionInfo::revision() const
 {
-  return revision;
+  return revision_;
 }
 
-const VersionInfo& GetVersion()
+const VersionInfo& currentVersion()
 {
-  return Version;
+  return version;
 }

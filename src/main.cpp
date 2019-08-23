@@ -1,10 +1,10 @@
-#include <iostream>
-#include <fstream>
-#include "ivariables.h"
 #include "init64.h"
+#include "ivariables.h"
 #include "version.h"
 
-using namespace std;
+#include <iostream>
+#include <fstream>
+
 
 void Usage(const char* applicationName)
 {
@@ -16,77 +16,84 @@ void Usage(const char* applicationName)
 
 void PrintVersion()
 {
-    std::cout << "version " << GetVersion().GetMajor() << "." << GetVersion().GetMinor() << "." << GetVersion().GetRevision() << std::endl;
+    std::cout << "version " << currentVersion().major() << "." << currentVersion().minor() << "." << currentVersion().revision() << std::endl;
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-    ifstream fin;
+    std::ifstream fin;
+
     //parse command line arguments
     switch (argc)
     {
-        case 1:
-            Usage(argv[0]);
-            return EXIT_FAILURE;
-            break;
-        case 2:
-            for (register int i = 1; i < argc; ++i)
+    case 1:
+        Usage(argv[0]);
+        return EXIT_FAILURE;
+
+    case 2:
+        for (int i = 1; i < argc; ++i)
+        {
+            if (!strcmp(argv[i], "-v") || !strcmp(argv[i], "--version"))
             {
-                if (!strcmp(argv[i], "-v") || !strcmp(argv[i], "--version"))
+                PrintVersion();
+                return EXIT_SUCCESS;
+            }
+            else if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help"))
+            {
+                Usage(argv[0]);
+                return EXIT_SUCCESS;
+            }
+            else
+            {
+                fin.open(argv[i]);
+                if (!fin)
                 {
-                    PrintVersion();
-                    return EXIT_SUCCESS;
-                }
-                else if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help"))
-                {
-                    Usage(argv[0]);
-                    return EXIT_SUCCESS;
-                }
-                else
-                {
-                    fin.open(argv[i]);
-                    if (!fin)
-                    {
-                        cout << "No such file:" << argv[i] << endl;
-                        return EXIT_FAILURE;
-                    }
+                    std::cout << "No such file:" << argv[i] << std::endl;
+                    return EXIT_FAILURE;
                 }
             }
-            break;
-        default:
-            std::cout << "Too many arguments." << std::endl;
-            Usage(argv[0]);
-            return EXIT_FAILURE;
-            break;
+        }
+        break;
+
+    default:
+        std::cout << "Too many arguments." << std::endl;
+        Usage(argv[0]);
+        return EXIT_FAILURE;
     }
 
-  IVariables vars;
-  //-----подсчет переменных
-  int i=0;
-  char s[161840],c='0';
-  while ( c!=';' ){
-  	fin>>c;
-	if (c==',' || c==';') {
-		vars.add(s);
-		s[0]='\0';
-		i=0;
-	}
-	else {
-		s[i]=c;
-		i++;
-		s[i]='\0';
-	}
-  }
-  //-----конец аодсчета переменных
-  fin.close();
+    IVariables vars;
+    // start counting variables
+    int i = 0;
+    char s[161840];
+    char c = '0';
+    while (c != ';')
+    {
+        fin >> c;
+        if (c == ',' || c == ';')
+        {
+            vars.add(s);
+            s[0] = '\0';
+            i = 0;
+        }
+        else
+        {
+            s[i] = c;
+            ++i;
+            s[i] = '\0';
+        }
+    }
 
-  int bytes = (vars.dim()-1)/64;
+    // finish counting variables
+    fin.close();
 
-  switch (bytes){
+    int bytes = (vars.dim() - 1) / 64;
+
+    switch (bytes)
+    {
     case 0:
-      init64(argv[1]);
-      break;
-  }
+        init64(argv[1]);
+        break;
+    }
 
-  return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }
