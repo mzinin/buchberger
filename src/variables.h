@@ -14,7 +14,7 @@ public:
     using ConstIterator = List::const_iterator;
 
 public:
-    void add(const char *var);
+    void add(const char* var);
     int dim() const
     {
         return list_.size();

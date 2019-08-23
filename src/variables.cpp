@@ -25,10 +25,10 @@ namespace
     }
 }
 
-void Variables::add(const char *var)
+void Variables::add(const char* var)
 {
     int n = strlen(var);
-    char* name = new char[n+1];
+    char* name = new char[n + 1];
 
     int k = 0;
     while (k < n && isspace(var[k]))

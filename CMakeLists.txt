@@ -44,6 +44,7 @@ SET (HEADERS
 SET (SOURCES
     "src/allocator.cpp"
     "src/groebner.cpp"
+    "src/init.cpp"
     "src/main.cpp"
     "src/monom.cpp"
     "src/polynom.cpp"
