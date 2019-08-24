@@ -27,16 +27,16 @@ namespace
 
 void Variables::add(const char* var)
 {
-    int n = strlen(var);
+    size_t n = strlen(var);
     char* name = new char[n + 1];
 
-    int k = 0;
+    size_t k = 0;
     while (k < n && isspace(var[k]))
     {
         ++k;
     }
 
-    int i = 0;
+    size_t i = 0;
     while (k < n && !isspace(var[k]))
     {
         name[i] = var[k];
@@ -47,12 +47,12 @@ void Variables::add(const char* var)
     name[i] = '\0';
     if (find(name) >= 0)
     {
-        IERROR("find(name) < 0");
+        IERROR("find(name) >= 0");
     }
     list_.push_back(name);
 }
 
-int Variables::find(const char *var) const
+int Variables::find(const char* var) const
 {
     int r = 0;
     ConstIterator i(list_.begin());
@@ -74,7 +74,7 @@ int Variables::read(std::istream& in) const
 {
     std::streampos posbeg = in.tellg(), posend;
     int varCurrent = 0, var = -1;
-    int lenCurrent, len;
+    int lenCurrent = 0, len = 0;
 
     ConstIterator i = list_.begin();
     while (i != list_.end())

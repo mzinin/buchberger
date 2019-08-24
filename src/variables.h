@@ -15,9 +15,9 @@ public:
 
 public:
     void add(const char* var);
-    int dim() const
+    uint16_t dim() const
     {
-        return list_.size();
+        return static_cast<uint16_t>(list_.size());
     }
 
     ConstIterator begin() const
@@ -31,15 +31,17 @@ public:
         return list_.end();
     }
 
-    const char* variable(int var) const
+    const char* variable(uint16_t var) const
     {
         ConstIterator it(list_.begin());
         it += var;
         return *it;
     }
 
-    int find(const char *var) const;
     int read(std::istream& in) const;
+
+private:
+    int find(const char* var) const;
 
 private:
     List list_;

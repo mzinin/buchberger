@@ -18,7 +18,7 @@ Polynom::Polynom(const Polynom& a)
     }
 }
 
-Polynom::Polynom(const Polynom& a, int var)
+Polynom::Polynom(const Polynom& a, uint16_t var)
     : len_(a.len_)
 {
     ConstIterator ia(a.head_);
@@ -81,7 +81,7 @@ void Polynom::set(const Polynom& a)
 
 void Polynom::swap(Polynom& a)
 {
-    Monom *tmp = head_;
+    Monom* tmp = head_;
     head_ = a.head_;
     a.head_ = tmp;
 
@@ -90,25 +90,25 @@ void Polynom::swap(Polynom& a)
     a.len_ = itmp;
 }
 
-int Polynom::degree() const
+uint16_t Polynom::degree() const
 {
-    return head_ ? head_->degree() : -100;
+    return head_ ? head_->degree() : 0;
 }
 
-int Polynom::degreeOfMonom(int i) const
+uint16_t Polynom::degreeOfMonom(size_t i) const
 {
     ConstIterator cit(head_);
-    for (int j = 0; j < i; ++j)
+    for (size_t j = 0; j < i; ++j)
     {
         ++cit;
     }
     return cit->degree();
 }
 
-int Polynom::deg(int var)
+uint16_t Polynom::deg(uint16_t var)
 {
     ConstIterator i(head_);
-    int output = 0;
+    uint16_t output = 0;
 
     while (i && !output)
     {
@@ -234,7 +234,7 @@ void Polynom::addNoCopy(Polynom& a)
     }
 }
 
-void Polynom::mult(int var)
+void Polynom::mult(uint16_t var)
 {
     if (isZero())
     {
@@ -270,7 +270,7 @@ void Polynom::mult(int var)
     delete tmpNoX;
 }
 
-void Polynom::mult(int var, unsigned deg)
+void Polynom::mult(uint16_t var, uint16_t deg)
 {
     if (var > 0 && deg > 1)
     {
@@ -285,7 +285,7 @@ void Polynom::mult(const Monom& m)
         return;
     }
 
-    for (int i = 0; i < m.dimIndepend(); ++i)
+    for (uint16_t i = 0; i < m.dimIndepend(); ++i)
     {
         if (m.deg(i))
         {
@@ -294,7 +294,7 @@ void Polynom::mult(const Monom& m)
     }
 }
 
-void Polynom::mult(const Polynom &a)
+void Polynom::mult(const Polynom& a)
 {
     Polynom* p = new Polynom();
     ConstIterator ia(a.head_);
@@ -311,12 +311,12 @@ void Polynom::mult(const Polynom &a)
     delete p;
 }
 
-void Polynom::pow(unsigned deg)
+void Polynom::pow(uint16_t)
 {
     //степеней-то нет, эта функция ничего не делает
 }
 
-void Polynom::reduction(const Polynom &a)
+void Polynom::reduction(const Polynom& a)
 {
     Monom* m2 = new Monom();
     Polynom* p = nullptr;
@@ -367,7 +367,7 @@ void Polynom::reduction(const Polynom &a)
     }
 }
 
-void Polynom::headReduction(const Polynom &a)
+void Polynom::headReduction(const Polynom& a)
 {
     Monom* m2 = new Monom();
     Polynom* p = nullptr;
@@ -476,14 +476,14 @@ void Polynom::unary(std::istream& in)
     }
     else
     {
-        int k = 1;
+        // int k = 1;
         do
         {
             ch = in.get();
-            if (ch == '-')
-            {
-                k *= -1;
-            }
+            // if (ch == '-')
+            // {
+            //     k *= -1;
+            // }
             ch = (in >> std::ws).peek();
         } while (ch == '+' || ch == '-');
         power(in);
@@ -501,8 +501,10 @@ void Polynom::power(std::istream& in)
         int deg = 0;
         in >> std::ws >> deg;
         if (in.fail() || deg <= 0)
-        IMESSAGE("expected 'degree > 0'");
-        pow(deg);
+        {
+            IMESSAGE("expected 'degree > 0'");
+        }
+        pow(static_cast<uint16_t>(deg));
     }
 }
 

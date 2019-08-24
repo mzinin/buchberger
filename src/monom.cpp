@@ -85,7 +85,6 @@ int Monom::compare(const Monom& a, const Monom& b) const
 
 std::istream& operator>>(std::istream& in, Monom& a)
 {
-    std::streampos posbeg = in.tellg();
     int var = a.independ->read(in);
 
     if (var < 0)
@@ -111,7 +110,7 @@ std::istream& operator>>(std::istream& in, Monom& a)
                     IMESSAGE("expected 'degree >= 0'");
                 }
             }
-            a.prolong(var, deg);
+            a.prolong(static_cast<uint16_t>(var), static_cast<uint16_t>(deg));
 
             posbeg = in.tellg();
             if (in.peek() != '*')
@@ -146,7 +145,7 @@ std::ostream& operator<<(std::ostream& out, const Monom& a)
     }
     else
     {
-        int i = 0;
+        uint16_t i = 0;
         Variables::ConstIterator j(a.independ->begin());
         while (a.deg(i) == 0)
         {
@@ -185,6 +184,6 @@ Allocator Monom::allocator_(sizeof(Monom));
 
 uint64_t Monom::zero_[64];
 uint64_t Monom::one_[64];
-uint64_t Monom::degrees_[256];
+uint16_t Monom::degrees_[256];
 
-size_t Monom::dimIndepend_;
+uint16_t Monom::dimIndepend_;

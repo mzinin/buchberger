@@ -2,6 +2,7 @@
 
 #include "monom.h"
 
+#include <cstdint>
 #include <iostream>
 
 
@@ -187,7 +188,7 @@ public:
 public:
     Polynom() = default;
     Polynom(const Polynom& a);
-    Polynom(const Polynom& a, int var);
+    Polynom(const Polynom& a, uint16_t var);
     Polynom(const Polynom& a, const Monom& m);
 
     ~Polynom()
@@ -207,12 +208,12 @@ public:
     bool isZero() const;
     size_t length() const;
 
-    int degree() const;
-    int degreeOfMonom(int i) const;
-    int deg(int var);
+    uint16_t degree() const;
+    uint16_t degreeOfMonom(size_t i) const;
+    uint16_t deg(uint16_t var);
 
     const Monom& lm() const;
-    const Monom& monom(int i) const;
+    const Monom& monom(size_t i) const;
     void ridOfLm();
 
     void add(const Monom &m);
@@ -223,12 +224,12 @@ public:
         add(a);
     }
 
-    void mult(int var);
-    void mult(int var, unsigned deg);
+    void mult(uint16_t var);
+    void mult(uint16_t var, uint16_t deg);
     void mult(const Monom& m);
     void mult(const Polynom& a);
 
-    void pow(unsigned deg);
+    void pow(uint16_t deg);
     void reduction(const Polynom& a);
     void headReduction(const Polynom& a);
 
@@ -262,10 +263,10 @@ inline const Monom& Polynom::lm() const
     return *head_;
 }
 
-inline const Monom& Polynom::monom(int i) const
+inline const Monom& Polynom::monom(size_t i) const
 {
     const Monom* r = head_;
-    for (int j = 0; j < i; ++j)
+    for (size_t j = 0; j < i; ++j)
     {
         r = r->next;
     }

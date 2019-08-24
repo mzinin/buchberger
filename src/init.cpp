@@ -92,7 +92,7 @@ void init(const char* filename)
         while (anIt != answer.end())
         {
             found = false;
-            for (int i = 0; i < bg.length(); ++i)
+            for (size_t i = 0; i < bg.length(); ++i)
             {
                 if (*bg[i] == **anIt)
                 {

@@ -80,12 +80,11 @@ GroebnerBasis::GroebnerBasis(const std::vector<Polynom*>& set)
     auto i2 = basis_.begin();
 
     dim_ = (**i1).lm().dimIndepend();
-    int i, j;
 
     while (i1 != set.end())
     {
         i2 = basis_.insert(i2, new Polynom(**i1));
-        for (i = 0; i < dim_; ++i)
+        for (uint16_t i = 0; i < dim_; ++i)
         {
             i2 = basis_.insert(i2, new Polynom(**i1));
             (**i2).mult(i);
@@ -98,12 +97,12 @@ GroebnerBasis::GroebnerBasis(const std::vector<Polynom*>& set)
     reduceSet(0);
 }
 
-Polynom* GroebnerBasis::sPoly(int i, int j)
+Polynom* GroebnerBasis::sPoly(size_t i, size_t j)
 {
     if (i < dim_)
     {
         Polynom* r1 = new Polynom(*(*this)[j - dim_]);
-        r1->mult(i);
+        r1->mult(static_cast<uint16_t>(i));
         return r1;
     }
 
@@ -146,8 +145,6 @@ void GroebnerBasis::reduceSet(int i)
     {
         R = basis_;
     }
-
-    int num;
 
     while (!R.empty())
     {
@@ -247,7 +244,7 @@ void GroebnerBasis::reduceSet(int i)
     basis_ = R;
 }
 
-bool GroebnerBasis::criterion1(int i, int j, unsigned long& lcm, int& degree)
+bool GroebnerBasis::criterion1(size_t i, size_t j, uint64_t& lcm, uint16_t& degree)
 {
     Polynom *f,*g;
     if (i < dim_)
@@ -259,13 +256,13 @@ bool GroebnerBasis::criterion1(int i, int j, unsigned long& lcm, int& degree)
         else
         {
             g = (*this)[j-dim_];
-            if (!g->lm().deg(i))
+            if (!g->lm().deg(static_cast<uint16_t>(i)))
             {
                 return false;
             }
-            lcm = 1 << i;
+            lcm = uint64_t(1) << i;
             lcm |= g->lm().rank();
-            degree = g->lm().degree() + 1;
+            degree = static_cast<uint16_t>(g->lm().degree() + 1);
             return true;
         }
     }
@@ -290,7 +287,7 @@ bool GroebnerBasis::criterion1(int i, int j, unsigned long& lcm, int& degree)
     }
 }
 
-bool GroebnerBasis::criterion2(int i, int j)
+bool GroebnerBasis::criterion2(size_t i, size_t j)
 {
     auto* ilist = &allPairs_[i];
     auto* jlist = &allPairs_[j];
@@ -302,7 +299,7 @@ bool GroebnerBasis::criterion2(int i, int j)
     Polynom* tmp;
     auto lcmMonom = std::make_unique<Monom>((*this)[j-dim_]->lm());
 
-    if (i>=dim_)
+    if (i >= dim_)
     {
         lcmMonom->mult((*this)[i-dim_]->lm());
     }
@@ -326,8 +323,9 @@ bool GroebnerBasis::criterion2(int i, int j)
 
 void GroebnerBasis::pushPoly(Polynom* p)
 {
-    int k = length() + dim_, degree;
-    unsigned long lcm;
+    size_t k = length() + dim_;
+    uint16_t degree = 0;
+    uint64_t lcm = 0;
     std::vector<Polynom*>::iterator basisIt = basis_.begin();
 
     basisIt = basis_.insert(basisIt, p);
@@ -336,7 +334,7 @@ void GroebnerBasis::pushPoly(Polynom* p)
     std::vector<Pair*> addToPairs;
     allPairs_.push_back(addToAllPairs);
 
-    for (auto inum = 0; inum < k; ++inum)
+    for (size_t inum = 0; inum < k; ++inum)
     {
         if (criterion1(inum, k, lcm, degree))
         {
@@ -376,8 +374,9 @@ void GroebnerBasis::pushPoly(Polynom* p)
 
 void GroebnerBasis::calculateGB()
 {
-    int k = length() + dim_, inum, jnum, degree;
-    unsigned long lcm;
+    size_t k = length() + dim_, inum = 0, jnum = 0;
+    uint16_t degree = 0;
+    uint64_t lcm = 0;
     Polynom *h, *spoly;
 
     for (inum = 0; inum < k; ++inum)

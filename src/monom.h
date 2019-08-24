@@ -34,18 +34,18 @@ public:
         allocator_.deallocate(ptr);
     }
 
-    size_t dimIndepend() const
+    uint16_t dimIndepend() const
     {
         return dimIndepend_;
     }
 
-    unsigned deg(int var) const;
-    unsigned operator[](int var) const
+    uint16_t deg(uint16_t var) const;
+    uint16_t operator[](uint16_t var) const
     {
         return deg(var);
     }
 
-    unsigned degree() const;
+    uint16_t degree() const;
     uint64_t rank() const;
 
     void set(const Monom& a);
@@ -55,9 +55,9 @@ public:
     }
 
     void setZero();
-    void prolong(int var);
-    void prolong(int var, unsigned deg);
-    void div(int var);
+    void prolong(uint16_t var);
+    void prolong(uint16_t var, uint16_t deg);
+    void div(uint16_t var);
     void div(const Monom& a);
 
     void mult(const Monom& a);
@@ -74,7 +74,7 @@ public:
     void gcd(const Monom& a, const Monom& b);
     void lcm(const Monom& a, const Monom& b);
 
-    bool equality(const Monom& a, int var, unsigned degree = 1) const;
+    bool equality(const Monom& a, uint16_t var) const;
     int compare(const Monom& a) const;
     int compare(const Monom& a, const Monom& b) const;
 
@@ -87,14 +87,14 @@ public:
     };
 
 private:
-    uint64_t totalDegree_;
+    uint16_t totalDegree_;
     uint64_t exponent_;
 
-    static size_t dimIndepend_;
+    static uint16_t dimIndepend_;
     static Allocator allocator_;
     static uint64_t zero_[64];
     static uint64_t one_[64];
-    static uint64_t degrees_[256];
+    static uint16_t degrees_[256];
 };
 
 inline void Monom::set(const Monom& a)
@@ -102,12 +102,12 @@ inline void Monom::set(const Monom& a)
     memcpy(this, &a, sizeof(Monom));
 }
 
-inline unsigned Monom::deg(int var) const
+inline uint16_t Monom::deg(uint16_t var) const
 {
     return (exponent_ & one_[var]) ? 1 : 0;
 }
 
-inline unsigned Monom::degree() const
+inline uint16_t Monom::degree() const
 {
     return totalDegree_;
 }
@@ -122,7 +122,7 @@ inline void Monom::setZero()
     exponent_ = 0;
 }
 
-inline void Monom::prolong(int var)
+inline void Monom::prolong(uint16_t var)
 {
     if (!(exponent_ & one_[var]))
     {
@@ -131,7 +131,7 @@ inline void Monom::prolong(int var)
     };
 }
 
-inline void Monom::prolong(int var, unsigned deg)
+inline void Monom::prolong(uint16_t var, uint16_t deg)
 {
     if (deg > 0)
     {
@@ -139,7 +139,7 @@ inline void Monom::prolong(int var, unsigned deg)
     }
 }
 
-inline void Monom::div(int var)
+inline void Monom::div(uint16_t var)
 {
     if (exponent_ & one_[var])
     {
@@ -160,7 +160,7 @@ inline void Monom::div(const Monom& a)
     for (int i = 0; i < 7; ++i)
     {
         ++c;
-        totalDegree_ += degrees_[*c];
+        totalDegree_ = static_cast<uint16_t>(totalDegree_ + degrees_[*c]);
     }
 }
 
@@ -172,7 +172,7 @@ inline void Monom::mult(const Monom& a)
     for (int i = 0; i < 7; ++i)
     {
         ++c;
-        totalDegree_ += degrees_[*c];
+        totalDegree_ = static_cast<uint16_t>(totalDegree_ + degrees_[*c]);
     }
 }
 
@@ -189,7 +189,7 @@ inline void Monom::mult(const Monom& a, const Monom& b)
     for (int i = 0; i < 7; ++i)
     {
         ++c;
-        totalDegree_ += degrees_[*c];
+        totalDegree_ = static_cast<uint16_t>(totalDegree_ + degrees_[*c]);
     }
 }
 
@@ -214,7 +214,7 @@ inline bool Monom::divisibilityTrue(const Monom& a) const
 
 inline void Monom::divide(const Monom& a, const Monom& b)
 {
-    totalDegree_ = a.totalDegree_ - b.totalDegree_;
+    totalDegree_ = static_cast<uint16_t>(a.totalDegree_ - b.totalDegree_);
     exponent_ = a.exponent_ ^ b.exponent_;
 }
 
@@ -257,7 +257,7 @@ inline void Monom::gcd(const Monom& a, const Monom& b)
     for (int i = 0; i < 7; ++i)
     {
         ++c;
-        totalDegree_ += degrees_[*c];
+        totalDegree_ = static_cast<uint16_t>(totalDegree_ + degrees_[*c]);
     }
 }
 
@@ -269,11 +269,11 @@ inline void Monom::lcm(const Monom& a, const Monom& b)
     for (int i = 0; i < 7; ++i)
     {
         ++c;
-        totalDegree_ += degrees_[*c];
+        totalDegree_ = static_cast<uint16_t>(totalDegree_ + degrees_[*c]);
     }
 }
 
-inline bool Monom::equality(const Monom& a, int var, unsigned) const
+inline bool Monom::equality(const Monom& a, uint16_t var) const
 {
     uint64_t d = 1;
     d = d << var;

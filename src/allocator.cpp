@@ -17,7 +17,7 @@ void Allocator::getMem()
 
     IASSERT(beg);
 
-    *((void***)end) = free_;
+    *(reinterpret_cast<void***>(end)) = free_;
     free_ = beg;
 
     do

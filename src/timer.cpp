@@ -72,30 +72,30 @@ void Timer::start()
     realElapsed_ = 0.0;
 
     tms buffer;
-    realTime_ = times(&buffer)/sHZ_;
-    userTime_ = buffer.tms_utime/sHZ_;
-    sysTime_ = buffer.tms_stime/sHZ_;
+    realTime_ = static_cast<double>(times(&buffer)) / sHZ_;
+    userTime_ = static_cast<double>(buffer.tms_utime) / sHZ_;
+    sysTime_ = static_cast<double>(buffer.tms_stime) / sHZ_;
 }
 
 void Timer::resume()
 {
     tms buffer;
-    realTime_ = times(&buffer)/sHZ_;
-    userTime_ = buffer.tms_utime/sHZ_;
-    sysTime_ = buffer.tms_stime/sHZ_;
+    realTime_ = static_cast<double>(times(&buffer)) / sHZ_;
+    userTime_ = static_cast<double>(buffer.tms_utime) / sHZ_;
+    sysTime_ = static_cast<double>(buffer.tms_stime) / sHZ_;
 }
 
 void Timer::stop()
 {
     tms buffer;
-    double t = times(&buffer)/sHZ_;
+    double t = static_cast<double>(times(&buffer)) / sHZ_;
 
-    userElapsed_ += buffer.tms_utime/sHZ_ - userTime_;
-    sysElapsed_ += buffer.tms_stime/sHZ_ - sysTime_;
+    userElapsed_ += static_cast<double>(buffer.tms_utime) / sHZ_ - userTime_;
+    sysElapsed_ += static_cast<double>(buffer.tms_stime) / sHZ_ - sysTime_;
     realElapsed_ += t - realTime_;
 
-    userTime_ = buffer.tms_utime/sHZ_;
-    sysTime_ = buffer.tms_stime/sHZ_;
+    userTime_ = static_cast<double>(buffer.tms_utime) / sHZ_;
+    sysTime_ = static_cast<double>(buffer.tms_stime) / sHZ_;
     realTime_ = t;
 }
 
