@@ -57,15 +57,10 @@ public:
     void setZero();
     void prolong(uint16_t var);
     void prolong(uint16_t var, uint16_t deg);
-    void div(uint16_t var);
-    void div(const Monom& a);
 
     void mult(const Monom& a);
-    void mult1(const Monom& a);
-    void mult(const Monom& a, const Monom& b);
 
     bool divisibility(const Monom& a) const;
-    bool divisibilityTrue(const Monom& a) const;
     void divide(const Monom& a, const Monom& b);
     void divide1(const Monom& a, const Monom& b);
 
@@ -74,14 +69,12 @@ public:
     void gcd(const Monom& a, const Monom& b);
     void lcm(const Monom& a, const Monom& b);
 
-    bool equality(const Monom& a, uint16_t var) const;
     int compare(const Monom& a) const;
-    int compare(const Monom& a, const Monom& b) const;
 
     friend std::istream& operator>>(std::istream& in, Monom& a);
     friend std::ostream& operator<<(std::ostream& out, const Monom& a);
-    friend bool operator==(const Monom &a, const Monom &b);
-    friend bool operator!=(const Monom &a, const Monom &b)
+    friend bool operator==(const Monom& a, const Monom& b);
+    friend bool operator!=(const Monom& a, const Monom& b)
     {
         return !(a == b);
     };
@@ -139,31 +132,6 @@ inline void Monom::prolong(uint16_t var, uint16_t deg)
     }
 }
 
-inline void Monom::div(uint16_t var)
-{
-    if (exponent_ & one_[var])
-    {
-        exponent_ &= zero_[var];
-        --totalDegree_;
-    }
-    else
-    {
-        IERROR("Monom can't be divided by variable");
-    }
-}
-
-inline void Monom::div(const Monom& a)
-{
-    exponent_ ^= a.exponent_;
-    uint8_t* c = reinterpret_cast<uint8_t*>(&exponent_);
-    totalDegree_ = degrees_[*c];
-    for (int i = 0; i < 7; ++i)
-    {
-        ++c;
-        totalDegree_ = static_cast<uint16_t>(totalDegree_ + degrees_[*c]);
-    }
-}
-
 inline void Monom::mult(const Monom& a)
 {
     exponent_ |= a.exponent_;
@@ -176,38 +144,9 @@ inline void Monom::mult(const Monom& a)
     }
 }
 
-inline void Monom::mult1(const Monom& a)
-{
-    exponent_ |= a.exponent_;
-}
-
-inline void Monom::mult(const Monom& a, const Monom& b)
-{
-    exponent_ = a.exponent_ | b.exponent_;
-    uint8_t* c = reinterpret_cast<uint8_t*>(&exponent_);
-    totalDegree_ = degrees_[*c];
-    for (int i = 0; i < 7; ++i)
-    {
-        ++c;
-        totalDegree_ = static_cast<uint16_t>(totalDegree_ + degrees_[*c]);
-    }
-}
-
 inline bool Monom::divisibility(const Monom& a) const
 {
     uint64_t d = exponent_ ^ a.exponent_;
-    d &= a.exponent_;
-    return d == 0;
-}
-
-inline bool Monom::divisibilityTrue(const Monom& a) const
-{
-    uint64_t d = exponent_ ^ a.exponent_;
-    if (d == 0)
-    {
-        return false;
-    }
-
     d &= a.exponent_;
     return d == 0;
 }
@@ -271,14 +210,6 @@ inline void Monom::lcm(const Monom& a, const Monom& b)
         ++c;
         totalDegree_ = static_cast<uint16_t>(totalDegree_ + degrees_[*c]);
     }
-}
-
-inline bool Monom::equality(const Monom& a, uint16_t var) const
-{
-    uint64_t d = 1;
-    d = d << var;
-    d |= a.exponent_;
-    return exponent_ == d;
 }
 
 inline int Monom::compare(const Monom& a) const

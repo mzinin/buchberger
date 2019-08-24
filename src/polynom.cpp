@@ -18,21 +18,6 @@ Polynom::Polynom(const Polynom& a)
     }
 }
 
-Polynom::Polynom(const Polynom& a, uint16_t var)
-    : len_(a.len_)
-{
-    ConstIterator ia(a.head_);
-    Iterator i(head_);
-
-    while (ia)
-    {
-        i.insert(*ia);
-        ++ia;
-        ++i;
-    }
-    mult(var);
-}
-
 Polynom::Polynom(const Polynom& a, const Monom& m)
     : len_(a.len_)
 {
@@ -54,14 +39,6 @@ void Polynom::setOne()
     i.clear();
     head_ = new Monom();
     len_ = 1;
-}
-
-void Polynom::setZero()
-{
-    Iterator i(head_);
-    i.clear();
-    head_ = NULL;
-    len_ = 0;
 }
 
 void Polynom::set(const Polynom& a)
@@ -88,37 +65,6 @@ void Polynom::swap(Polynom& a)
     size_t itmp = len_;
     len_ = a.len_;
     a.len_ = itmp;
-}
-
-uint16_t Polynom::degree() const
-{
-    return head_ ? head_->degree() : 0;
-}
-
-uint16_t Polynom::degreeOfMonom(size_t i) const
-{
-    ConstIterator cit(head_);
-    for (size_t j = 0; j < i; ++j)
-    {
-        ++cit;
-    }
-    return cit->degree();
-}
-
-uint16_t Polynom::deg(uint16_t var)
-{
-    ConstIterator i(head_);
-    uint16_t output = 0;
-
-    while (i && !output)
-    {
-        if (output < i->deg(var))
-        {
-            output = i->deg(var);
-        }
-        ++i;
-    }
-    return output;
 }
 
 void Polynom::ridOfLm()
@@ -270,14 +216,6 @@ void Polynom::mult(uint16_t var)
     delete tmpNoX;
 }
 
-void Polynom::mult(uint16_t var, uint16_t deg)
-{
-    if (var > 0 && deg > 1)
-    {
-        mult(var);
-    }
-}
-
 void Polynom::mult(const Monom& m)
 {
     if (isZero())
@@ -314,57 +252,6 @@ void Polynom::mult(const Polynom& a)
 void Polynom::pow(uint16_t)
 {
     //степеней-то нет, эта функция ничего не делает
-}
-
-void Polynom::reduction(const Polynom& a)
-{
-    Monom* m2 = new Monom();
-    Polynom* p = nullptr;
-
-    ConstIterator j(head_);
-    while (j)
-    {
-        if (j->divisibility(a.lm()))
-        {
-            m2->divide(*j, a.lm());
-            p = new Polynom(a);
-            p->mult(*m2);
-            addNoCopy(*p);
-            delete p;
-            j.constIt_ = head_;
-        }
-        else
-        {
-            break;
-        }
-    }
-
-    if (isZero())
-    {
-        return;
-    }
-
-    ConstIterator i(j);
-    ++i;
-
-    while (i)
-    {
-        if (i->divisibility(a.lm()))
-        {
-            m2->divide1(*i, a.lm());
-            p = new Polynom(a);
-            p->mult(*m2);
-            addNoCopy(*p);
-            delete p;
-            i = j;
-            ++i;
-        }
-        else
-        {
-            ++i;
-            ++j;
-        }
-    }
 }
 
 void Polynom::headReduction(const Polynom& a)
@@ -565,23 +452,4 @@ bool operator==(const Polynom& a, const Polynom& b)
     }
 
     return !ia && !ib;
-}
-
-void Polynom::assertValid(const char* fileName, int fileLine) const
-{
-    if (head_)
-    {
-        ConstIterator i(head_);
-        IASSERT2(fileName, fileLine, i);
-        ConstIterator prev(i);
-        ++i;
-
-        while (i)
-        {
-            IASSERT2(fileName, fileLine, i);
-            IASSERT2(fileName, fileLine, (*prev).compare(*i) > 0);
-            prev = i;
-            ++i;
-        }
-    }
 }

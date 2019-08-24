@@ -76,13 +76,6 @@ void Monom::init()
     degrees_[252] = 6; degrees_[253] = 7; degrees_[254] = 7; degrees_[255] = 8;
 }
 
-int Monom::compare(const Monom& a, const Monom& b) const
-{
-    Monom tmp(a);
-    tmp.mult(b);
-    return compare(tmp);
-}
-
 std::istream& operator>>(std::istream& in, Monom& a)
 {
     int var = a.independ->read(in);
