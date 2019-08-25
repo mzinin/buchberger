@@ -1,6 +1,6 @@
 CMAKE_MINIMUM_REQUIRED (VERSION 3.5.0 FATAL_ERROR)
 
-PROJECT (buhberger VERSION 0.2.3 LANGUAGES CXX)
+PROJECT (buchberger VERSION 0.2.3 LANGUAGES CXX)
 
 
 IF (NOT CMAKE_BUILD_TYPE)
@@ -78,12 +78,12 @@ SET (SOURCES
 
 IF (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     CONFIGURE_FILE (
-        "${CMAKE_CURRENT_SOURCE_DIR}/resources/buhberger.rc.in"
-        "${CMAKE_CURRENT_BINARY_DIR}/buhberger.rc"
+        "${CMAKE_CURRENT_SOURCE_DIR}/resources/buchberger.rc.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/buchberger.rc"
     )
 
     SET (RESOURCES
-        "${CMAKE_CURRENT_BINARY_DIR}/buhberger.rc"
+        "${CMAKE_CURRENT_BINARY_DIR}/buchberger.rc"
     )
 ENDIF ()
 
