@@ -1,6 +1,6 @@
 # Buchberger Agorithm
 
-This in an C++ implementation of [Buchberger's algorithm](https://en.wikipedia.org/wiki/Buchberger's_algorithm). The input of `buchberger` util is the inintial boolean basis in [GNV format](https://github.com/mzinin/groebner_benchmarks), the output is the corresponding boolean [Gröbner basis](https://en.wikipedia.org/wiki/Gröbner_basis).
+This in an C++ implementation of [Buchberger's algorithm](https://en.wikipedia.org/wiki/Buchberger's_algorithm). The input of `buchberger` util is the initial boolean basis in [GNV format](https://github.com/mzinin/groebner_benchmarks), the output is the corresponding boolean [Gröbner basis](https://en.wikipedia.org/wiki/Gröbner_basis).
 
 
 ## Getting Started
@@ -11,7 +11,7 @@ To compile this project one would need:
 * C++ compiler with C++14 support (tested ones are GCC and MSVC)
 * CMake >= 3.5.0
 
-### Compile library
+### Build
 
 On Linux:
 ```
