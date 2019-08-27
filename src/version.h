@@ -1,5 +1,13 @@
 #pragma once
 
+#ifdef major
+#undef major
+#endif
+
+#ifdef minor
+#undef minor
+#endif
+
 
 class VersionInfo
 {
