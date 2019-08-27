@@ -1,7 +1,5 @@
 #pragma once
 
-#include "current_version.h"
-
 
 class VersionInfo
 {
